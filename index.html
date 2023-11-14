@@ -33,7 +33,12 @@
 
       </ul>
 
-      <form class="w-1/3 flex flex-col" hx-post="/add-task/">
+      <form
+        class="w-1/3 flex flex-col"
+        hx-post="/add-task/"
+        hx-target="#task-list"
+        hx-swap="beforeend"
+      >
         <label for="name">Add Task</label>
         <input
           class="p-2 border border-gray-400 rounded-lg"

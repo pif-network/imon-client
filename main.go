@@ -36,7 +36,14 @@ func main() {
 		name := r.PostFormValue("name")
 		description := r.PostFormValue("description")
 
-		htmlStr := fmt.Sprintf("<div class='task'> <h2>%s</h2> <p>%s</p> </div>", name, description)
+		htmlStr := fmt.Sprintf(`
+			<li>
+				<div class="w-1/3 p-4 mb-2 border border-gray-400 rounded-lg">
+					<h2>%s</h2>
+					<p class="italic">%s</p>
+				</div>
+			</li>
+		`, name, description)
 		tmpl, _ := template.New("task").Parse(htmlStr)
 		tmpl.Execute(w, nil)
 	}
