@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"text/template"
@@ -14,9 +16,28 @@ type Task struct {
 }
 
 func main() {
-	fmt.Println("Hello, World!")
+	serveRootView := func(w http.ResponseWriter, r *http.Request) {
+		jsonStr := []byte(`{"key":"lily:0001"}`)
+		res, err := http.Post("http://localhost:8000/v1/task-log", "application/json", bytes.NewBuffer(jsonStr))
+		if err != nil {
+			log.Printf("Failed to post to task-log service.")
+			log.Printf(err.Error())
+			tmpl := template.Must(template.ParseFiles("index.html"))
+			tmpl.Execute(w, nil)
+			return
+		}
 
-	h1 := func(w http.ResponseWriter, r *http.Request) {
+		resBody, err := io.ReadAll(res.Body)
+		if err != nil {
+			log.Printf("Failed to read response body.")
+			log.Printf(err.Error())
+			tmpl := template.Must(template.ParseFiles("index.html"))
+			tmpl.Execute(w, nil)
+			return
+		}
+
+		log.Println(string(resBody))
+
 		tmpl := template.Must(template.ParseFiles("index.html"))
 		tasks := map[string][]Task{
 			"Tasks": {
@@ -28,7 +49,7 @@ func main() {
 		tmpl.Execute(w, tasks)
 	}
 
-	h2 := func(w http.ResponseWriter, r *http.Request) {
+	addTaskHandler := func(w http.ResponseWriter, r *http.Request) {
 		log.Println("HTMX!!!")
 		log.Println(r.PostFormValue("name"))
 		log.Println(r.PostFormValue("description"))
@@ -48,8 +69,8 @@ func main() {
 		tmpl.Execute(w, nil)
 	}
 
-	http.HandleFunc("/", h1)
-	http.HandleFunc("/add-task/", h2)
+	http.HandleFunc("/", serveRootView)
+	http.HandleFunc("/add-task/", addTaskHandler)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
