@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -9,16 +10,43 @@ import (
 	"text/template"
 )
 
+type TaskState int
+
+const (
+	Begin TaskState = iota
+	Break
+	Back
+	End
+	Idle
+)
+
 type Task struct {
-	Name        string
-	Description string
-	Completed   bool
+	Name      string
+	TaskState TaskState
+	BeginTime int64
+	EndTime   int64
+	Duration  int64
+}
+
+type TaskLog struct {
+	CurrentTask Task
+	Id          string
+	TaskHistory []Task
+}
+
+type UserTaskLogResponse struct {
+	Status string
+	Data   TaskLog
 }
 
 func main() {
 	serveRootView := func(w http.ResponseWriter, r *http.Request) {
 		jsonStr := []byte(`{"key":"lily:0001"}`)
-		res, err := http.Post("http://localhost:8000/v1/task-log", "application/json", bytes.NewBuffer(jsonStr))
+		res, err := http.Post(
+			"http://localhost:8000/v1/task-log",
+			"application/json",
+			bytes.NewBuffer(jsonStr),
+		)
 		if err != nil {
 			log.Printf("Failed to post to task-log service.")
 			log.Printf(err.Error())
@@ -37,16 +65,12 @@ func main() {
 		}
 
 		log.Println(string(resBody))
+		resp := UserTaskLogResponse{}
+		json.Unmarshal(resBody, &resp)
 
 		tmpl := template.Must(template.ParseFiles("index.html"))
-		tasks := map[string][]Task{
-			"Tasks": {
-				{"Task 1", "Description 1", false},
-				{"Task 2", "Description 2", false},
-			},
-		}
 
-		tmpl.Execute(w, tasks)
+		tmpl.Execute(w, resp.Data.CurrentTask)
 	}
 
 	addTaskHandler := func(w http.ResponseWriter, r *http.Request) {
