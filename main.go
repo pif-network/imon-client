@@ -21,22 +21,34 @@ const (
 )
 
 type Task struct {
-	Name      string
-	TaskState TaskState
-	BeginTime int64
-	EndTime   int64
-	Duration  int64
-}
-
-type TaskLog struct {
-	CurrentTask Task
-	Id          string
-	TaskHistory []Task
+	Name      string    `json:"name"`
+	TaskState TaskState `json:"state"`
+	BeginTime int64     `json:"begin_time"`
+	EndTime   int64     `json:"end_time"`
+	Duration  int64     `json:"duration"`
 }
 
 type UserTaskLogResponse struct {
-	Status string
-	Data   TaskLog
+	Data struct {
+		TaskLog struct {
+			CurrentTask struct {
+				BeginTime string `json:"begin_time"`
+				Duration  int    `json:"duration"`
+				EndTime   string `json:"end_time"`
+				Name      string `json:"name"`
+				State     string `json:"state"`
+			} `json:"current_task"`
+			ID          int `json:"id"`
+			TaskHistory []struct {
+				BeginTime string `json:"begin_time"`
+				Duration  int    `json:"duration"`
+				EndTime   string `json:"end_time"`
+				Name      string `json:"name"`
+				State     string `json:"state"`
+			} `json:"task_history"`
+		} `json:"task_log"`
+	} `json:"data"`
+	Status string `json:"status"`
 }
 
 func main() {
@@ -65,12 +77,22 @@ func main() {
 		}
 
 		log.Println(string(resBody))
-		resp := UserTaskLogResponse{}
-		json.Unmarshal(resBody, &resp)
+		var resp UserTaskLogResponse
+		err = json.Unmarshal(resBody, &resp)
+		if err != nil {
+			log.Printf("Failed to unmarshal response body.")
+			log.Printf(err.Error())
+		}
+		fmt.Printf(">>> %+v\n", resp)
+		fmt.Println("----")
 
 		tmpl := template.Must(template.ParseFiles("index.html"))
 
-		tmpl.Execute(w, resp.Data.CurrentTask)
+		err = tmpl.Execute(w, resp)
+		if err != nil {
+			log.Printf("Failed to execute template.")
+			log.Printf(err.Error())
+		}
 	}
 
 	addTaskHandler := func(w http.ResponseWriter, r *http.Request) {
