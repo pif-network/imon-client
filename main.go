@@ -76,20 +76,15 @@ func main() {
 			return
 		}
 
-		log.Println(string(resBody))
 		var resp UserTaskLogResponse
-		err = json.Unmarshal(resBody, &resp)
-		if err != nil {
+		if err := json.Unmarshal(resBody, &resp); err != nil {
 			log.Printf("Failed to unmarshal response body.")
 			log.Printf(err.Error())
 		}
-		fmt.Printf(">>> %+v\n", resp)
-		fmt.Println("----")
 
 		tmpl := template.Must(template.ParseFiles("index.html"))
 
-		err = tmpl.Execute(w, resp)
-		if err != nil {
+		if err := tmpl.Execute(w, resp); err != nil {
 			log.Printf("Failed to execute template.")
 			log.Printf(err.Error())
 		}
