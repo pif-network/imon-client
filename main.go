@@ -52,12 +52,20 @@ type UserTaskLogResponse struct {
 }
 
 func main() {
+	templates := template.Must(template.ParseGlob("templates/*"))
+
 	serveRootView := func(w http.ResponseWriter, r *http.Request) {
-		jsonStr := []byte(`{"key":"lily:0001"}`)
+		templates.ExecuteTemplate(w, "index.html", nil)
+	}
+
+	postKeyHandler := func(w http.ResponseWriter, r *http.Request) {
+		userKey := r.PostFormValue("user-key")
+		log.Printf("User key: %s", userKey)
+		payload := fmt.Sprintf(`{"key": "%s"}`, userKey)
 		res, err := http.Post(
 			"http://localhost:8000/v1/task-log",
 			"application/json",
-			bytes.NewBuffer(jsonStr),
+			bytes.NewBuffer([]byte(payload)),
 		)
 		if err != nil {
 			log.Printf("Failed to post to task-log service.")
@@ -68,6 +76,7 @@ func main() {
 		}
 
 		resBody, err := io.ReadAll(res.Body)
+		fmt.Printf("r: %s\n", resBody)
 		if err != nil {
 			log.Printf("Failed to read response body.")
 			log.Printf(err.Error())
@@ -82,9 +91,7 @@ func main() {
 			log.Printf(err.Error())
 		}
 
-		tmpl := template.Must(template.ParseFiles("index.html"))
-
-		if err := tmpl.Execute(w, resp); err != nil {
+		if err := templates.ExecuteTemplate(w, "task-list", resp); err != nil {
 			log.Printf("Failed to execute template.")
 			log.Printf(err.Error())
 		}
@@ -111,6 +118,7 @@ func main() {
 	}
 
 	http.HandleFunc("/", serveRootView)
+	http.HandleFunc("/post-key/", postKeyHandler)
 	http.HandleFunc("/add-task/", addTaskHandler)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
