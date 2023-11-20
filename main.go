@@ -10,43 +10,59 @@ import (
 	"text/template"
 )
 
-type TaskState int
+type TaskState string
 
 const (
-	Begin TaskState = iota
-	Break
-	Back
-	End
-	Idle
+	Begin TaskState = "Begin"
+	Break TaskState = "Break"
+	Back  TaskState = "Back"
+	End   TaskState = "End"
+	Idle  TaskState = "Idle"
 )
 
 type Task struct {
+	BeginTime string    `json:"begin_time"`
+	Duration  int       `json:"duration"`
+	EndTime   string    `json:"end_time"`
 	Name      string    `json:"name"`
-	TaskState TaskState `json:"state"`
-	BeginTime int64     `json:"begin_time"`
-	EndTime   int64     `json:"end_time"`
-	Duration  int64     `json:"duration"`
+	State     TaskState `json:"state"`
+}
+
+func (t *Task) UnmarshalJSON(data []byte) error {
+	type Alias Task
+	aux := &struct {
+		*Alias
+	}{
+		Alias: (*Alias)(t),
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	return nil
+}
+
+type TaskLog struct {
+	ID          int    `json:"id"`
+	CurrentTask Task   `json:"current_task"`
+	TaskHistory []Task `json:"task_history"`
+}
+
+func (t *TaskLog) UnmarshalJSON(data []byte) error {
+	type Alias TaskLog
+	aux := &struct {
+		*Alias
+	}{
+		Alias: (*Alias)(t),
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	return nil
 }
 
 type UserTaskLogResponse struct {
 	Data struct {
-		TaskLog struct {
-			CurrentTask struct {
-				BeginTime string `json:"begin_time"`
-				Duration  int    `json:"duration"`
-				EndTime   string `json:"end_time"`
-				Name      string `json:"name"`
-				State     string `json:"state"`
-			} `json:"current_task"`
-			ID          int `json:"id"`
-			TaskHistory []struct {
-				BeginTime string `json:"begin_time"`
-				Duration  int    `json:"duration"`
-				EndTime   string `json:"end_time"`
-				Name      string `json:"name"`
-				State     string `json:"state"`
-			} `json:"task_history"`
-		} `json:"task_log"`
+		TaskLog TaskLog `json:"task_log"`
 	} `json:"data"`
 	Status string `json:"status"`
 }
@@ -76,7 +92,6 @@ func main() {
 		}
 
 		resBody, err := io.ReadAll(res.Body)
-		fmt.Printf("r: %s\n", resBody)
 		if err != nil {
 			log.Printf("Failed to read response body.")
 			log.Printf(err.Error())
