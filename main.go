@@ -77,6 +77,7 @@ func main() {
 	postKeyHandler := func(w http.ResponseWriter, r *http.Request) {
 		userKey := r.PostFormValue("user-key")
 		log.Printf("User key: %s", userKey)
+
 		payload := fmt.Sprintf(`{"key": "%s"}`, userKey)
 		res, err := http.Post(
 			"http://localhost:8000/v1/task-log",
@@ -86,9 +87,16 @@ func main() {
 		if err != nil {
 			log.Printf("Failed to post to task-log service.")
 			log.Printf(err.Error())
+			templates.ExecuteTemplate(w, "invalid-user-key", "hi")
+			return
+		}
+		if res.StatusCode != http.StatusOK {
+			log.Printf("Failed to post to task-log service.")
+			log.Printf("Status code: %d", res.StatusCode)
 			templates.ExecuteTemplate(w, "invalid-user-key", nil)
 			return
 		}
+		defer res.Body.Close()
 
 		resBody, err := io.ReadAll(res.Body)
 		if err != nil {
