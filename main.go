@@ -86,8 +86,7 @@ func main() {
 		if err != nil {
 			log.Printf("Failed to post to task-log service.")
 			log.Printf(err.Error())
-			tmpl := template.Must(template.ParseFiles("index.html"))
-			tmpl.Execute(w, nil)
+			templates.ExecuteTemplate(w, "invalid-user-key", nil)
 			return
 		}
 
