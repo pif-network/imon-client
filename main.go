@@ -119,29 +119,8 @@ func main() {
 		}
 	}
 
-	addTaskHandler := func(w http.ResponseWriter, r *http.Request) {
-		log.Println("HTMX!!!")
-		log.Println(r.PostFormValue("name"))
-		log.Println(r.PostFormValue("description"))
-
-		name := r.PostFormValue("name")
-		description := r.PostFormValue("description")
-
-		htmlStr := fmt.Sprintf(`
-			<li>
-				<div class="w-1/3 p-4 mb-2 border border-gray-400 rounded-lg">
-					<h2>%s</h2>
-					<p class="italic">%s</p>
-				</div>
-			</li>
-		`, name, description)
-		tmpl, _ := template.New("task").Parse(htmlStr)
-		tmpl.Execute(w, nil)
-	}
-
 	http.HandleFunc("/", serveRootView)
 	http.HandleFunc("/post-key/", postKeyHandler)
-	http.HandleFunc("/add-task/", addTaskHandler)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
