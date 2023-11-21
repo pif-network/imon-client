@@ -87,13 +87,13 @@ func main() {
 		if err != nil {
 			log.Printf("Failed to post to task-log service.")
 			log.Printf(err.Error())
-			templates.ExecuteTemplate(w, "invalid-user-key", "hi")
+			templates.ExecuteTemplate(w, "invalid-user-key", "Cannot reach service.")
 			return
 		}
 		if res.StatusCode != http.StatusOK {
 			log.Printf("Failed to post to task-log service.")
 			log.Printf("Status code: %d", res.StatusCode)
-			templates.ExecuteTemplate(w, "invalid-user-key", nil)
+			templates.ExecuteTemplate(w, "invalid-user-key", "Invalid user key.")
 			return
 		}
 		defer res.Body.Close()
