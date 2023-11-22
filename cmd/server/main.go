@@ -68,7 +68,7 @@ type UserTaskLogResponse struct {
 }
 
 func main() {
-	templates := template.Must(template.ParseGlob("templates/*"))
+	templates := template.Must(template.ParseGlob("internal/**/*.html"))
 
 	serveRootView := func(w http.ResponseWriter, r *http.Request) {
 		templates.ExecuteTemplate(w, "index.html", nil)
