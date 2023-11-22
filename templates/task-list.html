@@ -24,7 +24,15 @@
 
 {{ block "task" . }}
   <div class="w-1/3 p-4 mb-2 border border-gray-400 rounded-lg">
+
     <h2>{{ .Name }}</h2>
-    <h4>{{ .State }}</h4>
+
+    <div class="flex">
+      {{ if eq .State "Begin" }}
+        {{ template "icon_check" }}
+      {{ end }}
+      <h4>{{ .State }}</h4>
+    </div>
+
   </div>
 {{ end }}
