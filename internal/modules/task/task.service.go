@@ -1,20 +1,15 @@
-package handlers
+package task
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"io"
 	"log"
 	"net/http"
 
-	"the-gorgeouses.com/imon-client/internal/views/pages"
+	. "the-gorgeouses.com/imon-client/internal/core"
 )
-
-func ServeRootView(w http.ResponseWriter, r *http.Request) {
-	_ = pages.Index().Render(r.Context(), w)
-}
 
 type TaskState string
 
@@ -73,10 +68,7 @@ type UserTaskLogResponse struct {
 	Status string `json:"status"`
 }
 
-func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
-	userKey := r.PostFormValue("user-key")
-	log.Printf("User key: %s", userKey)
-
+func GetUserTaskLogById(userKey string) (UserTaskLogResponse, error) {
 	payload := fmt.Sprintf(`{"key": "%s"}`, userKey)
 	res, err := http.Post(
 		"http://localhost:8000/v1/task-log",
@@ -87,13 +79,13 @@ func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Failed to post to task-log service.")
 		log.Printf(err.Error())
 		// templates.ExecuteTemplate(w, "invalid-user-key", "Cannot reach service.")
-		return
+		return UserTaskLogResponse{}, UpstreamError("Cannot reach service.")
 	}
 	if res.StatusCode != http.StatusOK {
 		log.Printf("Failed to post to task-log service.")
 		log.Printf("Status code: %d", res.StatusCode)
 		// templates.ExecuteTemplate(w, "invalid-user-key", "Invalid user key.")
-		return
+		return UserTaskLogResponse{}, UpstreamError("Invalid user key.")
 	}
 	defer res.Body.Close()
 
@@ -101,9 +93,9 @@ func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("Failed to read response body.")
 		log.Printf(err.Error())
-		tmpl := template.Must(template.ParseFiles("index.html"))
-		tmpl.Execute(w, nil)
-		return
+		// tmpl := template.Must(template.ParseFiles("index.html"))
+		// tmpl.Execute(w, nil)
+		return UserTaskLogResponse{}, err
 	}
 
 	var resp UserTaskLogResponse
@@ -112,8 +104,5 @@ func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf(err.Error())
 	}
 
-	// if err := templates.ExecuteTemplate(w, "task-list", resp); err != nil {
-	// 	log.Printf("Failed to execute template.")
-	// 	log.Printf(err.Error())
-	// }
+	return resp, nil
 }

@@ -4,12 +4,12 @@ import (
 	"log"
 	"net/http"
 
-	"the-gorgeouses.com/imon-client/internal/handlers"
+	"the-gorgeouses.com/imon-client/internal/modules/task"
 )
 
 func main() {
-	http.HandleFunc("/", handlers.ServeRootView)
-	http.HandleFunc("/post-key/", handlers.PostKeyHandler)
+	http.HandleFunc("/", task.ServeRootView)
+	http.HandleFunc("/post-key/", task.PostKeyHandler)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
