@@ -1,8 +1,6 @@
 package partials
 
-import "the-gorgeouses.com/imon-client/cmd/server/main"
-
-templ CurrentTaskAndExecutionLog(taskLog main.TaskLog) {
+templ CurrentTaskAndExecutionLog() {
 	<section id="task-list">
 		/* {{ if .Data.TaskLog.CurrentTask }} */
 		<h2 class="mb-4 font-bold text-3xl">Current task</h2>
