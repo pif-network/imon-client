@@ -16,10 +16,12 @@ func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 		if IsUpstreamError(err) {
 			log.Printf("Failed to get user task log.")
 			log.Printf(err.Error())
+			_ = ErrorWidget(err.Error()).Render(r.Context(), w)
 			return
 		}
 		log.Printf("ailed to get user task log.")
 		log.Printf(err.Error())
+		_ = ErrorWidget(err.Error()).Render(r.Context(), w)
 		return
 	}
 	log.Printf("%+v\n", resp)

@@ -10,20 +10,24 @@ templ TaskItem(task Task) {
 }
 
 templ CurrentTaskAndExecutionLog(taskLog TaskLog) {
-	<section id="task-list">
-		if len(taskLog.TaskHistory) > 0 {
-			<h2 class="mb-4 font-bold text-3xl">Current task</h2>
-			@TaskItem(taskLog.CurrentTask)
-		} else {
-			<h2 class="mb-4 font-bold text-3xl">No tasks</h2>
+	if len(taskLog.TaskHistory) > 0 {
+		<h2 class="mb-4 font-bold text-3xl">Current task</h2>
+		@TaskItem(taskLog.CurrentTask)
+	} else {
+		<h2 class="mb-4 font-bold text-3xl">No tasks</h2>
+	}
+	<h2 class="mb-4 font-bold text-3xl">Task log</h2>
+	<ul>
+		for _, t := range taskLog.TaskHistory {
+			<li>
+				@TaskItem(t)
+			</li>
 		}
-		<h2 class="mb-4 font-bold text-3xl">Task log</h2>
-		<ul>
-			for _, t := range taskLog.TaskHistory {
-				<li>
-					@TaskItem(t)
-				</li>
-			}
-		</ul>
-	</section>
+	</ul>
+}
+
+templ ErrorWidget(displayText string) {
+	<div class="w-1/3 p-4 mb-2 border border-red-400 rounded-lg">
+		<h2>{ displayText }</h2>
+	</div>
 }
