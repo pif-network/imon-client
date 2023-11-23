@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 
 	. "the-gorgeouses.com/imon-client/internal/core"
@@ -76,13 +75,9 @@ func GetUserTaskLogById(userKey string) (UserTaskLogResponse, error) {
 		bytes.NewBuffer([]byte(payload)),
 	)
 	if err != nil {
-		log.Printf("Failed to post to task-log service.")
-		log.Printf(err.Error())
 		return UserTaskLogResponse{}, UpstreamError("Cannot reach service.")
 	}
 	if res.StatusCode != http.StatusOK {
-		log.Printf("Failed to post to task-log service.")
-		log.Printf("Status code: %d", res.StatusCode)
 		return UserTaskLogResponse{}, UpstreamError("Invalid user key.")
 	}
 	defer res.Body.Close()
