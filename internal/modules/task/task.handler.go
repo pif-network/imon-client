@@ -5,12 +5,7 @@ import (
 	"net/http"
 
 	. "the-gorgeouses.com/imon-client/internal/core"
-	"the-gorgeouses.com/imon-client/internal/views/pages"
 )
-
-func ServeRootView(w http.ResponseWriter, r *http.Request) {
-	_ = pages.Index().Render(r.Context(), w)
-}
 
 func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 	userKey := r.PostFormValue("user-key")
@@ -21,12 +16,10 @@ func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 		if IsUpstreamError(err) {
 			log.Printf("Failed to get user task log.")
 			log.Printf(err.Error())
-			// templates.ExecuteTemplate(w, "invalid-user-key", "Cannot reach service.")
 			return
 		}
 		log.Printf("ailed to get user task log.")
 		log.Printf(err.Error())
-		// templates.ExecuteTemplate(w, "invalid-user-key", "Cannot reach service.")
 		return
 	}
 	log.Printf("%+v\n", resp)
@@ -35,4 +28,6 @@ func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 	// 	log.Printf("Failed to execute template.")
 	// 	log.Printf(err.Error())
 	// }
+
+	_ = CurrentTaskAndExecutionLog(resp.Data.TaskLog).Render(r.Context(), w)
 }

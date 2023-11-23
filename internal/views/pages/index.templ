@@ -14,11 +14,11 @@ templ Index() {
 		</head>
 		<body>
 			<main class="m-8">
-				@partials.CurrentTaskAndExecutionLog()
+				<section id="task-list">
+					<h2 class="mb-4 font-bold text-3xl">No tasks</h2>
+				</section>
 				@partials.UserKeyForm()
 			</main>
 		</body>
 	</html>
 }
-
-// {{ template "task-list" . }} {{ template "user-key-form" . }}
