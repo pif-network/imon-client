@@ -78,30 +78,23 @@ func GetUserTaskLogById(userKey string) (UserTaskLogResponse, error) {
 	if err != nil {
 		log.Printf("Failed to post to task-log service.")
 		log.Printf(err.Error())
-		// templates.ExecuteTemplate(w, "invalid-user-key", "Cannot reach service.")
 		return UserTaskLogResponse{}, UpstreamError("Cannot reach service.")
 	}
 	if res.StatusCode != http.StatusOK {
 		log.Printf("Failed to post to task-log service.")
 		log.Printf("Status code: %d", res.StatusCode)
-		// templates.ExecuteTemplate(w, "invalid-user-key", "Invalid user key.")
 		return UserTaskLogResponse{}, UpstreamError("Invalid user key.")
 	}
 	defer res.Body.Close()
 
 	resBody, err := io.ReadAll(res.Body)
 	if err != nil {
-		log.Printf("Failed to read response body.")
-		log.Printf(err.Error())
-		// tmpl := template.Must(template.ParseFiles("index.html"))
-		// tmpl.Execute(w, nil)
-		return UserTaskLogResponse{}, err
+		return UserTaskLogResponse{}, InternalError("Failed to read response body.", err)
 	}
 
 	var resp UserTaskLogResponse
 	if err := json.Unmarshal(resBody, &resp); err != nil {
-		log.Printf("Failed to unmarshal response body.")
-		log.Printf(err.Error())
+		return UserTaskLogResponse{}, InternalError("Failed to unmarshal response body.", err)
 	}
 
 	return resp, nil
