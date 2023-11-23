@@ -8,6 +8,8 @@ import (
 	"log"
 	"net/http"
 	"text/template"
+
+	"the-gorgeouses.com/imon-client/internal/views/pages"
 )
 
 type TaskState string
@@ -71,7 +73,7 @@ func main() {
 	templates := template.Must(template.ParseGlob("internal/**/*.html"))
 
 	serveRootView := func(w http.ResponseWriter, r *http.Request) {
-		templates.ExecuteTemplate(w, "index.html", nil)
+		_ = pages.Index().Render(r.Context(), w)
 	}
 
 	postKeyHandler := func(w http.ResponseWriter, r *http.Request) {
