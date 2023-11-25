@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	. "the-gorgeouses.com/imon-client/internal/core/errors"
+	"the-gorgeouses.com/imon-client/internal/core/server"
 )
 
 func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
@@ -27,10 +28,10 @@ func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 	_ = CurrentTaskAndExecutionLog(resp.Data.TaskLog).Render(r.Context(), w)
 }
 
-func GetTaskRouter() *http.ServeMux {
-	taskRouter := http.NewServeMux()
+func GetTaskRouter() *server.Router {
+	taskRouter := server.NewRouter()
 
-	taskRouter.HandleFunc("/post-key/", func(w http.ResponseWriter, r *http.Request) {
+	taskRouter.Post("/post-key/", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:
 			PostKeyHandler(w, r)
