@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	. "the-gorgeouses.com/imon-client/internal/core"
+	. "the-gorgeouses.com/imon-client/internal/core/errors"
 )
 
 func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
@@ -25,4 +25,19 @@ func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("%+v\n", resp)
 
 	_ = CurrentTaskAndExecutionLog(resp.Data.TaskLog).Render(r.Context(), w)
+}
+
+func GetTaskRouter() *http.ServeMux {
+	taskRouter := http.NewServeMux()
+
+	taskRouter.HandleFunc("/api/task/post-key/", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodPost:
+			PostKeyHandler(w, r)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
+
+	return taskRouter
 }

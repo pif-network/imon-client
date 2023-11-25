@@ -7,7 +7,7 @@ import (
 	"io"
 	"net/http"
 
-	. "the-gorgeouses.com/imon-client/internal/core"
+	. "the-gorgeouses.com/imon-client/internal/core/errors"
 )
 
 type TaskState string

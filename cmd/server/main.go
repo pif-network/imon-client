@@ -3,26 +3,12 @@ package main
 import (
 	"net/http"
 
-	"the-gorgeouses.com/imon-client/internal/modules/task"
-	"the-gorgeouses.com/imon-client/internal/views"
+	"the-gorgeouses.com/imon-client/internal/core"
 )
 
 func main() {
-	apiRouter := http.NewServeMux()
 	appRouter := http.NewServeMux()
-
-	appRouter.HandleFunc("/", views.ServeRootView)
-
-	apiRouter.HandleFunc("/api/task/post-key/", func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodPost:
-			task.PostKeyHandler(w, r)
-		default:
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		}
-	})
-
-	appRouter.Handle("/api/", apiRouter)
+	core.AttachRoutes(appRouter)
 
 	http.ListenAndServe(":8080", appRouter)
 }
