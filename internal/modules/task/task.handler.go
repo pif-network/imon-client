@@ -30,7 +30,7 @@ func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 func GetTaskRouter() *http.ServeMux {
 	taskRouter := http.NewServeMux()
 
-	taskRouter.HandleFunc("/api/task/post-key/", func(w http.ResponseWriter, r *http.Request) {
+	taskRouter.HandleFunc("/post-key/", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:
 			PostKeyHandler(w, r)

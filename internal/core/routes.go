@@ -9,9 +9,9 @@ import (
 
 func AttachRoutes(appRouter *http.ServeMux) {
 	apiRouter := http.NewServeMux()
+	apiRouter.Handle("/task/", http.StripPrefix("/task", task.GetTaskRouter()))
 
-	apiRouter.Handle("/api/task/", task.GetTaskRouter())
+	appRouter.Handle("/api/", http.StripPrefix("/api", apiRouter))
 
-	appRouter.Handle("/api/", apiRouter)
 	appRouter.HandleFunc("/", views.ServeRootView)
 }
