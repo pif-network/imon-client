@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 
 	. "the-gorgeouses.com/imon-client/internal/core/errors"
@@ -82,13 +81,9 @@ func GetUserTaskLogById(userKey string) (UserTaskLogResponse, error) {
 	}
 	defer res.Body.Close()
 
-	resBody, err := io.ReadAll(res.Body)
-	if err != nil {
-		return UserTaskLogResponse{}, InternalError("Failed to read response body.", err)
-	}
-
 	var resp UserTaskLogResponse
-	if err := json.Unmarshal(resBody, &resp); err != nil {
+	if err := json.NewDecoder(res.Body).Decode(&resp); err != nil {
+		fmt.Println("error", err)
 		return UserTaskLogResponse{}, InternalError("Failed to unmarshal response body.", err)
 	}
 
