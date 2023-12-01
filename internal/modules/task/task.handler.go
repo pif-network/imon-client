@@ -6,6 +6,7 @@ import (
 
 	. "the-gorgeouses.com/imon-client/internal/core/errors"
 	"the-gorgeouses.com/imon-client/internal/core/server"
+	"the-gorgeouses.com/imon-client/internal/views/components"
 )
 
 func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
@@ -16,11 +17,11 @@ func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if IsUpstreamError(err) {
 			log.Printf(err.Error())
-			_ = ErrorWidget(err.Error()).Render(r.Context(), w)
+			_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
 			return
 		}
 		log.Printf(err.Error())
-		_ = ErrorWidget(err.Error()).Render(r.Context(), w)
+		_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
 		return
 	}
 	log.Printf("%+v\n", resp)
