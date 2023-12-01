@@ -26,6 +26,19 @@ func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("%+v\n", resp)
 
+	res, err := GetAllUserRecords()
+	if err != nil {
+		if IsUpstreamError(err) {
+			log.Printf(err.Error())
+			_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
+			return
+		}
+		log.Printf(err.Error())
+		_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
+		return
+	}
+	log.Printf("%+v\n", res)
+
 	_ = CurrentTaskAndExecutionLog(resp.Data.TaskLog).Render(r.Context(), w)
 }
 

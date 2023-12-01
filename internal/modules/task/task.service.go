@@ -89,3 +89,29 @@ func GetUserTaskLogById(userKey string) (UserTaskLogResponse, error) {
 
 	return resp, nil
 }
+
+type AllUserRecordsResponse struct {
+	Data struct {
+		UserRecords []TaskLog `json:"user_records"`
+	} `json:"data"`
+	Status string `json:"status"`
+}
+
+func GetAllUserRecords() (AllUserRecordsResponse, error) {
+	res, err := http.Get("http://localhost:8000/v1/record/all")
+	if err != nil {
+		return AllUserRecordsResponse{}, UpstreamError("Cannot reach service.")
+	}
+	if res.StatusCode != http.StatusOK {
+		return AllUserRecordsResponse{}, UpstreamError("Invalid user key.")
+	}
+	defer res.Body.Close()
+
+	var resp AllUserRecordsResponse
+	if err := json.NewDecoder(res.Body).Decode(&resp); err != nil {
+		fmt.Println("error", err)
+		return AllUserRecordsResponse{}, InternalError("Failed to unmarshal response body.", err)
+	}
+
+	return resp, nil
+}
