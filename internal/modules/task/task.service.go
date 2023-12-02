@@ -19,6 +19,10 @@ const (
 	Idle  TaskState = "Idle"
 )
 
+func (t TaskState) String() string {
+	return string(t)
+}
+
 type Task struct {
 	BeginTime string    `json:"begin_time"`
 	Duration  int       `json:"duration"`

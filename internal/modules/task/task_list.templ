@@ -32,7 +32,7 @@ templ ActiveUserList(userRecords []TaskLog) {
 		<ul>
 			for _, record := range userRecords {
 				<li>
-					{ record.UserName }
+					{ record.UserName } -> [{ record.CurrentTask.State.String() }] { record.CurrentTask.Name }
 				</li>
 			}
 		</ul>
