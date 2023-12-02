@@ -42,6 +42,7 @@ func (t *Task) UnmarshalJSON(data []byte) error {
 
 type TaskLog struct {
 	ID          int    `json:"id"`
+	UserName    string `json:"user_name"`
 	CurrentTask Task   `json:"current_task"`
 	TaskHistory []Task `json:"task_history"`
 }

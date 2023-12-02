@@ -40,6 +40,7 @@ func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("%+v\n", res)
 
 	_ = CurrentTaskAndExecutionLog(resp.Data.TaskLog).Render(r.Context(), w)
+	_ = ActiveUserList(res.Data.UserRecords).Render(r.Context(), w)
 }
 
 func GetTaskRouter() *server.Router {

@@ -25,3 +25,16 @@ templ CurrentTaskAndExecutionLog(taskLog TaskLog) {
 		}
 	</ul>
 }
+
+templ ActiveUserList(userRecords []TaskLog) {
+	<section id="user-list" hx-swap-oob="true">
+		<h2 class="mb-4 font-bold text-3xl">Active users</h2>
+		<ul>
+			for _, record := range userRecords {
+				<li>
+					{ record.UserName }
+				</li>
+			}
+		</ul>
+	</section>
+}
