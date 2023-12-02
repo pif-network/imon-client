@@ -13,12 +13,13 @@ templ Index() {
 			<script src="https://cdn.tailwindcss.com"></script>
 		</head>
 		<body>
-			<main class="m-8">
-				<section id="task-list">
-					<h2 class="mb-4 font-bold text-3xl">Your task log</h2>
-				</section>
-				<section id="user-list"></section>
-				@partials.UserKeyForm()
+			<main class="m-8 flex gap-6">
+				<section id="task-list"></section>
+				<div>
+					<section id="user-list"></section>
+					<div class="mb-4"></div>
+					@partials.UserKeyForm()
+				</div>
 			</main>
 		</body>
 	</html>
