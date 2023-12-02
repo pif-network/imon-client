@@ -1,19 +1,25 @@
 package task
 
 import "strconv"
+import "the-gorgeouses.com/imon-client/internal/views/components"
 
 templ TaskItem(task Task) {
-	<div class="p-4 mb-2 border border-gray-400 rounded-lg">
-		<h3>[{ string(task.State) }] { task.Name }</h3>
-		<div class="flex">
-			<span>
-				if (task.State == End) {
-					Finished in { strconv.Itoa(task.Duration) }
-				} else if (task.State == Break|| task.State == Back) {
-					Running for { strconv.Itoa(task.Duration) }
-				}
-			</span>
+	<div class="p-4 mb-2 flex justify-center items-center gap-2 border border-gray-400 rounded-lg">
+		<div>
+			<h3>[{ string(task.State) }] { task.Name }</h3>
+			<div class="flex">
+				<span>
+					if (task.State == End) {
+						Finished in { strconv.Itoa(task.Duration) }
+					} else if (task.State == Break|| task.State == Back) {
+						Running for { strconv.Itoa(task.Duration) }
+					}
+				</span>
+			</div>
 		</div>
+		if (task.State != End) {
+			@components.CheckIcon()
+		}
 	</div>
 }
 
