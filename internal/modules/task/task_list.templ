@@ -3,7 +3,7 @@ package task
 import "strconv"
 import "the-gorgeouses.com/imon-client/internal/views/components"
 
-templ TaskItem(task Task) {
+templ TaskItem(task Task, isLogTask bool) {
 	<div class="p-4 mb-2 flex justify-center items-center gap-2 border border-gray-400 rounded-lg">
 		<div>
 			<h3>[{ string(task.State) }] { task.Name }</h3>
@@ -17,7 +17,7 @@ templ TaskItem(task Task) {
 				</span>
 			</div>
 		</div>
-		if (task.State != End) {
+		if (task.State != End && !isLogTask) {
 			@components.CheckIcon()
 		}
 	</div>
@@ -26,7 +26,7 @@ templ TaskItem(task Task) {
 templ CurrentTaskAndExecutionLog(taskLog TaskLog) {
 	if len(taskLog.TaskHistory) > 0 {
 		<h2 class="mb-4 font-bold text-3xl">Current task</h2>
-		@TaskItem(taskLog.CurrentTask)
+		@TaskItem(taskLog.CurrentTask,false)
 	} else {
 		<h2 class="mb-4 font-bold text-3xl">No tasks</h2>
 	}
@@ -34,7 +34,7 @@ templ CurrentTaskAndExecutionLog(taskLog TaskLog) {
 	<ul>
 		for _, t := range taskLog.TaskHistory {
 			<li>
-				@TaskItem(t)
+				@TaskItem(t, true)
 			</li>
 		}
 	</ul>

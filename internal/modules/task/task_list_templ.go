@@ -13,7 +13,7 @@ import "bytes"
 import "strconv"
 import "the-gorgeouses.com/imon-client/internal/views/components"
 
-func TaskItem(task Task) templ.Component {
+func TaskItem(task Task, isLogTask bool) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -81,7 +81,7 @@ func TaskItem(task Task) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if task.State != End {
+		if task.State != End && !isLogTask {
 			templ_7745c5c3_Err = components.CheckIcon().Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -125,7 +125,7 @@ func CurrentTaskAndExecutionLog(taskLog TaskLog) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = TaskItem(taskLog.CurrentTask).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = TaskItem(taskLog.CurrentTask, false).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -162,7 +162,7 @@ func CurrentTaskAndExecutionLog(taskLog TaskLog) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = TaskItem(t).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = TaskItem(t, true).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
