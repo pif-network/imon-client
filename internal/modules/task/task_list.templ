@@ -8,7 +8,10 @@ func formatUpdateTaskPayload(state string) string {
 }
 
 templ TaskItem(task Task, isLogTask bool) {
-	<div class="p-4 mb-2 flex justify-center items-center gap-2 border border-gray-400 rounded-lg" hx-target="this">
+	<div
+ 		class="p-4 mb-2 flex justify-center items-center gap-2 border border-gray-400 rounded-lg"
+ 		hx-target="this"
+	>
 		<div>
 			<h3>[{ string(task.State) }] { task.Name }</h3>
 			<div class="flex">

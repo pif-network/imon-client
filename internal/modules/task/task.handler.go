@@ -83,6 +83,41 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 		_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
 		return
 	}
+
+	w.Header().Set("HX-Trigger", "task_updated")
+}
+
+func RefreshAppDataHandler(w http.ResponseWriter, r *http.Request) {
+	userKey := routerState.GetUserKey()
+
+	resp, err := GetUserTaskLogById(userKey)
+	if err != nil {
+		if IsUpstreamError(err) {
+			log.Printf(err.Error())
+			_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
+			return
+		}
+		log.Printf(err.Error())
+		_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
+		return
+	}
+	log.Printf("%+v\n", resp)
+
+	res, err := GetAllUserRecords()
+	if err != nil {
+		if IsUpstreamError(err) {
+			log.Printf(err.Error())
+			_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
+			return
+		}
+		log.Printf(err.Error())
+		_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
+		return
+	}
+	log.Printf("%+v\n", res)
+
+	_ = CurrentTaskAndExecutionLog(resp.Data.TaskLog).Render(r.Context(), w)
+	_ = ActiveUserList(res.Data.UserRecords).Render(r.Context(), w)
 }
 
 func GetTaskRouter() *server.Router {
@@ -100,6 +135,14 @@ func GetTaskRouter() *server.Router {
 		switch r.Method {
 		case http.MethodPost:
 			UpdateTaskHandler(w, r)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
+	taskRouter.Get("/refresh/", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			RefreshAppDataHandler(w, r)
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
