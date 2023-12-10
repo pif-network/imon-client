@@ -124,28 +124,13 @@ func GetTaskRouter() *server.Router {
 	taskRouter := server.NewRouter()
 
 	taskRouter.Post("/post-key/", func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodPost:
-			PostKeyHandler(w, r)
-		default:
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		}
+		PostKeyHandler(w, r)
 	})
 	taskRouter.Post("/update/", func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodPost:
-			UpdateTaskHandler(w, r)
-		default:
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		}
+		UpdateTaskHandler(w, r)
 	})
 	taskRouter.Get("/refresh/", func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodGet:
-			RefreshAppDataHandler(w, r)
-		default:
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		}
+		RefreshAppDataHandler(w, r)
 	})
 
 	return taskRouter
