@@ -13,6 +13,10 @@ import "bytes"
 import "strconv"
 import "the-gorgeouses.com/imon-client/internal/views/components"
 
+func formatUpdateTaskPayload(state string) string {
+	return `{"state": "` + state + `"}`
+}
+
 func TaskItem(task Task, isLogTask bool) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
@@ -26,7 +30,7 @@ func TaskItem(task Task, isLogTask bool) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"p-4 mb-2 flex justify-center items-center gap-2 border border-gray-400 rounded-lg\"><div><h3>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"p-4 mb-2 flex justify-center items-center gap-2 border border-gray-400 rounded-lg\" hx-target=\"this\"><div><h3>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -82,7 +86,23 @@ func TaskItem(task Task, isLogTask bool) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if task.State != End && !isLogTask {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"cursor-pointer\" hx-post=\"/api/task/update/\" hx-swap=\"outerHTML\" hx-trigger=\"click\" hx-vals=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(formatUpdateTaskPayload(End.String())))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 			templ_7745c5c3_Err = components.CheckIcon().Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

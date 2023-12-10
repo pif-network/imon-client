@@ -3,8 +3,12 @@ package task
 import "strconv"
 import "the-gorgeouses.com/imon-client/internal/views/components"
 
+func formatUpdateTaskPayload(state string) string {
+	return `{"state": "` + state + `"}`
+}
+
 templ TaskItem(task Task, isLogTask bool) {
-	<div class="p-4 mb-2 flex justify-center items-center gap-2 border border-gray-400 rounded-lg">
+	<div class="p-4 mb-2 flex justify-center items-center gap-2 border border-gray-400 rounded-lg" hx-target="this">
 		<div>
 			<h3>[{ string(task.State) }] { task.Name }</h3>
 			<div class="flex">
@@ -18,7 +22,15 @@ templ TaskItem(task Task, isLogTask bool) {
 			</div>
 		</div>
 		if (task.State != End && !isLogTask) {
-			@components.CheckIcon()
+			<div
+ 				class="cursor-pointer"
+ 				hx-post="/api/task/update/"
+ 				hx-swap="outerHTML"
+ 				hx-trigger="click"
+ 				hx-vals={ formatUpdateTaskPayload(End.String()) }
+			>
+				@components.CheckIcon()
+			</div>
 		}
 	</div>
 }
@@ -26,7 +38,7 @@ templ TaskItem(task Task, isLogTask bool) {
 templ CurrentTaskAndExecutionLog(taskLog TaskLog) {
 	if len(taskLog.TaskHistory) > 0 {
 		<h2 class="mb-4 font-bold text-3xl">Current task</h2>
-		@TaskItem(taskLog.CurrentTask,false)
+		@TaskItem(taskLog.CurrentTask, false)
 	} else {
 		<h2 class="mb-4 font-bold text-3xl">No tasks</h2>
 	}

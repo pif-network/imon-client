@@ -120,3 +120,23 @@ func GetAllUserRecords() (AllUserRecordsResponse, error) {
 
 	return resp, nil
 }
+
+func UpdateCurrentTask(userKey string, taskState TaskState) error {
+	payload := fmt.Sprintf(`{"key": "%s", "state": "%s"}`, userKey, taskState)
+	fmt.Println(payload)
+	res, err := http.Post(
+		"http://localhost:8000/v1/task/update",
+		"application/json",
+		bytes.NewBuffer([]byte(payload)),
+	)
+	if err != nil {
+		return UpstreamError("Cannot reach service.")
+	}
+	if res.StatusCode != http.StatusOK {
+		fmt.Println(res.StatusCode)
+		return UpstreamError("Invalid user key.")
+	}
+	defer res.Body.Close()
+
+	return nil
+}
