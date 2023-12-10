@@ -123,13 +123,13 @@ func RefreshAppDataHandler(w http.ResponseWriter, r *http.Request) {
 func GetTaskRouter() *server.Router {
 	taskRouter := server.NewRouter()
 
-	taskRouter.Post("/post-key/", func(w http.ResponseWriter, r *http.Request) {
+	taskRouter.Post("/post-key", func(w http.ResponseWriter, r *http.Request) {
 		PostKeyHandler(w, r)
 	})
-	taskRouter.Post("/update/", func(w http.ResponseWriter, r *http.Request) {
+	taskRouter.Post("/update", func(w http.ResponseWriter, r *http.Request) {
 		UpdateTaskHandler(w, r)
 	})
-	taskRouter.Get("/refresh/", func(w http.ResponseWriter, r *http.Request) {
+	taskRouter.Get("/refresh", func(w http.ResponseWriter, r *http.Request) {
 		RefreshAppDataHandler(w, r)
 	})
 
