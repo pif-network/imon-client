@@ -6,7 +6,8 @@ import (
 	"fmt"
 	"net/http"
 
-	. "the-gorgeouses.com/imon-client/internal/core/errors"
+	"the-gorgeouses.com/imon-client/internal/core"
+	"the-gorgeouses.com/imon-client/internal/core/server"
 )
 
 type TaskState string
@@ -79,17 +80,17 @@ func GetUserTaskLogById(userKey string) (UserTaskLogResponse, error) {
 		bytes.NewBuffer([]byte(payload)),
 	)
 	if err != nil {
-		return UserTaskLogResponse{}, UpstreamError("Cannot reach service.")
+		return UserTaskLogResponse{}, server.UpstreamError("Cannot reach service.")
 	}
 	if res.StatusCode != http.StatusOK {
-		return UserTaskLogResponse{}, UpstreamError("Invalid user key.")
+		return UserTaskLogResponse{}, server.UpstreamError("Invalid user key.")
 	}
 	defer res.Body.Close()
 
 	var resp UserTaskLogResponse
 	if err := json.NewDecoder(res.Body).Decode(&resp); err != nil {
 		fmt.Println("error", err)
-		return UserTaskLogResponse{}, InternalError("Failed to unmarshal response body.", err)
+		return UserTaskLogResponse{}, core.InternalError("Failed to unmarshal response body.", err)
 	}
 
 	return resp, nil
@@ -105,17 +106,17 @@ type AllUserRecordsResponse struct {
 func GetAllUserRecords() (AllUserRecordsResponse, error) {
 	res, err := http.Get("http://localhost:8000/v1/record/all")
 	if err != nil {
-		return AllUserRecordsResponse{}, UpstreamError("Cannot reach service.")
+		return AllUserRecordsResponse{}, server.UpstreamError("Cannot reach service.")
 	}
 	if res.StatusCode != http.StatusOK {
-		return AllUserRecordsResponse{}, UpstreamError("Invalid user key.")
+		return AllUserRecordsResponse{}, server.UpstreamError("Invalid user key.")
 	}
 	defer res.Body.Close()
 
 	var resp AllUserRecordsResponse
 	if err := json.NewDecoder(res.Body).Decode(&resp); err != nil {
 		fmt.Println("error", err)
-		return AllUserRecordsResponse{}, InternalError("Failed to unmarshal response body.", err)
+		return AllUserRecordsResponse{}, core.InternalError("Failed to unmarshal response body.", err)
 	}
 
 	return resp, nil
@@ -130,11 +131,11 @@ func UpdateCurrentTask(userKey string, taskState TaskState) error {
 		bytes.NewBuffer([]byte(payload)),
 	)
 	if err != nil {
-		return UpstreamError("Cannot reach service.")
+		return server.UpstreamError("Cannot reach service.")
 	}
 	if res.StatusCode != http.StatusOK {
 		fmt.Println(res.StatusCode)
-		return UpstreamError("Invalid user key.")
+		return server.UpstreamError("Invalid user key.")
 	}
 	defer res.Body.Close()
 

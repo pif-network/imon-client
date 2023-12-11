@@ -1,12 +1,10 @@
 package task
 
 import (
-	"fmt"
-	"log"
 	"net/http"
 	"sync"
 
-	. "the-gorgeouses.com/imon-client/internal/core/errors"
+	"github.com/charmbracelet/log"
 	"the-gorgeouses.com/imon-client/internal/core/server"
 	"the-gorgeouses.com/imon-client/internal/views/components"
 )
@@ -39,8 +37,8 @@ func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := GetUserTaskLogById(userKey)
 	if err != nil {
-		if IsUpstreamError(err) {
-			log.Printf(err.Error())
+		if server.IsUpstreamError(err) {
+			log.Error(err.Error())
 			_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
 			return
 		}
@@ -48,11 +46,10 @@ func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 		_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
 		return
 	}
-	log.Printf("%+v\n", resp)
 
 	res, err := GetAllUserRecords()
 	if err != nil {
-		if IsUpstreamError(err) {
+		if server.IsUpstreamError(err) {
 			log.Printf(err.Error())
 			_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
 			return
@@ -61,7 +58,6 @@ func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 		_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
 		return
 	}
-	log.Printf("%+v\n", res)
 
 	_ = CurrentTaskAndExecutionLog(resp.Data.TaskLog).Render(r.Context(), w)
 	_ = ActiveUserList(res.Data.UserRecords).Render(r.Context(), w)
@@ -73,8 +69,8 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := UpdateCurrentTask(userKey, TaskState(state))
 	if err != nil {
-		fmt.Println(err)
-		if IsUpstreamError(err) {
+		log.Error(err)
+		if server.IsUpstreamError(err) {
 			log.Printf(err.Error())
 			_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
 			return
@@ -96,7 +92,7 @@ func RefreshAppDataHandler(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := GetUserTaskLogById(userKey)
 	if err != nil {
-		if IsUpstreamError(err) {
+		if server.IsUpstreamError(err) {
 			log.Printf(err.Error())
 			_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
 			return
@@ -109,7 +105,7 @@ func RefreshAppDataHandler(w http.ResponseWriter, r *http.Request) {
 
 	res, err := GetAllUserRecords()
 	if err != nil {
-		if IsUpstreamError(err) {
+		if server.IsUpstreamError(err) {
 			log.Printf(err.Error())
 			_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
 			return
