@@ -1,3 +1,5 @@
+watch-templ:
+	npx nodemon@3.0.1 -x "~/go/bin/templ generate" -e .templ
+
 dev:
-	~/go/bin/templ generate --watch &
-	npx nodemon@3.0.1 -x "go run ./cmd/server/main.go" -e .go,.html --signal SIGINT
+	just watch-templ & ~/go/bin/wgo run cmd/server/main.go && fg
