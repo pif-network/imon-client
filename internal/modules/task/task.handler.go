@@ -89,6 +89,10 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 func RefreshAppDataHandler(w http.ResponseWriter, r *http.Request) {
 	userKey := routerState.GetUserKey()
+	if userKey == "" {
+		http.Error(w, "Incorrect flow - First post the user key.", http.StatusForbidden)
+		return
+	}
 
 	resp, err := GetUserTaskLogById(userKey)
 	if err != nil {
