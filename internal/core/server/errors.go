@@ -20,7 +20,11 @@ func NewUpstreamError(msg string, statusCode int, err error) *UpstreamError {
 	}
 }
 func (e *UpstreamError) Error() string {
-	return fmt.Sprintf("Upstream_Error: %s", e.error.Error())
+	if e.error == nil {
+		return fmt.Sprintf("Upstream_Error: %s", e.msg)
+	} else {
+		return fmt.Sprintf("Upstream_Error: %s", e.error.Error())
+	}
 }
 func (e *UpstreamError) Msg() string {
 	return e.msg
