@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/charmbracelet/log"
 	"the-gorgeouses.com/imon-client/internal/core"
 	"the-gorgeouses.com/imon-client/internal/core/server"
 )
@@ -80,10 +81,12 @@ func GetUserTaskLogById(userKey string) (UserTaskLogResponse, error) {
 		bytes.NewBuffer([]byte(payload)),
 	)
 	if err != nil {
-		return UserTaskLogResponse{}, server.UpstreamError("Cannot reach service.")
+		return UserTaskLogResponse{}, server.NewUpstreamError("Cannot reach service", http.StatusInternalServerError)
 	}
 	if res.StatusCode != http.StatusOK {
-		return UserTaskLogResponse{}, server.UpstreamError("Invalid user key.")
+		// NOTE: The only not-ok status that this client is currently able to cause is 400.
+		log.Debug("status code", "code", res.StatusCode)
+		return UserTaskLogResponse{}, server.NewUpstreamError("Invalid user key", http.StatusBadRequest)
 	}
 	defer res.Body.Close()
 
@@ -106,10 +109,10 @@ type AllUserRecordsResponse struct {
 func GetAllUserRecords() (AllUserRecordsResponse, error) {
 	res, err := http.Get("http://localhost:8000/v1/record/all")
 	if err != nil {
-		return AllUserRecordsResponse{}, server.UpstreamError("Cannot reach service.")
+		return AllUserRecordsResponse{}, server.NewUpstreamError("Cannot reach service", http.StatusInternalServerError)
 	}
 	if res.StatusCode != http.StatusOK {
-		return AllUserRecordsResponse{}, server.UpstreamError("Invalid user key.")
+		return AllUserRecordsResponse{}, server.NewUpstreamError("Invalid user key.", http.StatusBadRequest)
 	}
 	defer res.Body.Close()
 
@@ -131,11 +134,11 @@ func UpdateCurrentTask(userKey string, taskState TaskState) error {
 		bytes.NewBuffer([]byte(payload)),
 	)
 	if err != nil {
-		return server.UpstreamError("Cannot reach service.")
+		return server.NewUpstreamError("Cannot reach service", http.StatusInternalServerError)
 	}
 	if res.StatusCode != http.StatusOK {
 		fmt.Println(res.StatusCode)
-		return server.UpstreamError("Invalid user key.")
+		return server.NewUpstreamError("Invalid user key.", http.StatusBadRequest)
 	}
 	defer res.Body.Close()
 

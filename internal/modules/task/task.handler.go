@@ -32,13 +32,13 @@ var routerState = &RouterState{}
 
 func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 	userKey := r.PostFormValue("user-key")
-	log.Printf("User key: %s", userKey)
+	log.Info("", "userKey", userKey)
 	routerState.SetUserKey(userKey)
 
 	resp, err := GetUserTaskLogById(userKey)
 	if err != nil {
-		if server.IsUpstreamError(err) {
-			log.Error(err.Error())
+		log.Error(err.Error())
+		if server.FixableByClient(err) {
 			_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
 			return
 		}
