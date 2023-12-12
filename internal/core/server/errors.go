@@ -1,28 +1,37 @@
 package server
 
-import "fmt"
+import (
+	"fmt"
+
+	"the-gorgeouses.com/imon-client/internal/core"
+)
 
 type UpstreamError struct {
-	StatusCode int
+	statusCode int
+	msg        string
 	error
 }
 
-func NewUpstreamError(reason string, statusCode int) *UpstreamError {
+func NewUpstreamError(msg string, statusCode int, err error) *UpstreamError {
 	return &UpstreamError{
-		StatusCode: statusCode,
-		error:      fmt.Errorf(reason),
+		statusCode: statusCode,
+		msg:        msg,
+		error:      err,
 	}
 }
 func (e *UpstreamError) Error() string {
-	return fmt.Sprintf("[ERROR] Upstream_Error: %s", e.error.Error())
+	return fmt.Sprintf("Upstream_Error: %s", e.error.Error())
+}
+func (e *UpstreamError) Msg() string {
+	return e.msg
 }
 func IsUpstreamError(err error) bool {
 	_, ok := err.(*UpstreamError)
 	return ok
 }
-func FixableByClient(err error) bool {
-	if IsUpstreamError(err) {
-		return err.(*UpstreamError).StatusCode == 400
+func FixableByClient(err error) (core.AppError, bool) {
+	if uerr, ok := err.(*UpstreamError); ok {
+		return uerr, uerr.statusCode == 400
 	}
-	return false
+	return nil, false
 }

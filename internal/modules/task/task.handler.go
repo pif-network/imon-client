@@ -37,14 +37,15 @@ func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := GetUserTaskLogById(userKey)
 	if err != nil {
-		log.Error(err.Error())
-		if server.FixableByClient(err) {
+		logger.Error(err.Error())
+
+		if ferr, ok := server.FixableByClient(err); ok {
+			_ = components.ErrorWidget(ferr.Msg()).Render(r.Context(), w)
+			return
+		} else {
 			_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
 			return
 		}
-		log.Printf(err.Error())
-		_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
-		return
 	}
 
 	res, err := GetAllUserRecords()

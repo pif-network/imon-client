@@ -6,6 +6,10 @@ import (
 	"github.com/charmbracelet/log"
 )
 
+type AppError interface {
+	Msg() string
+}
+
 // Wrapper for internal errors, with concise cause.
 type internalError struct {
 	error error

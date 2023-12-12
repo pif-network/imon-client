@@ -81,12 +81,12 @@ func GetUserTaskLogById(userKey string) (UserTaskLogResponse, error) {
 		bytes.NewBuffer([]byte(payload)),
 	)
 	if err != nil {
-		return UserTaskLogResponse{}, server.NewUpstreamError("Cannot reach service", http.StatusInternalServerError)
+		return UserTaskLogResponse{}, server.NewUpstreamError("Cannot reach service", http.StatusInternalServerError, err)
 	}
 	if res.StatusCode != http.StatusOK {
 		// NOTE: The only not-ok status that this client is currently able to cause is 400.
 		log.Debug("status code", "code", res.StatusCode)
-		return UserTaskLogResponse{}, server.NewUpstreamError("Invalid user key", http.StatusBadRequest)
+		return UserTaskLogResponse{}, server.NewUpstreamError("Invalid user key", http.StatusBadRequest, err)
 	}
 	defer res.Body.Close()
 
@@ -109,10 +109,10 @@ type AllUserRecordsResponse struct {
 func GetAllUserRecords() (AllUserRecordsResponse, error) {
 	res, err := http.Get("http://localhost:8000/v1/record/all")
 	if err != nil {
-		return AllUserRecordsResponse{}, server.NewUpstreamError("Cannot reach service", http.StatusInternalServerError)
+		return AllUserRecordsResponse{}, server.NewUpstreamError("Cannot reach service", http.StatusInternalServerError, err)
 	}
 	if res.StatusCode != http.StatusOK {
-		return AllUserRecordsResponse{}, server.NewUpstreamError("Invalid user key.", http.StatusBadRequest)
+		return AllUserRecordsResponse{}, server.NewUpstreamError("Invalid user key.", http.StatusBadRequest, err)
 	}
 	defer res.Body.Close()
 
@@ -134,11 +134,11 @@ func UpdateCurrentTask(userKey string, taskState TaskState) error {
 		bytes.NewBuffer([]byte(payload)),
 	)
 	if err != nil {
-		return server.NewUpstreamError("Cannot reach service", http.StatusInternalServerError)
+		return server.NewUpstreamError("Cannot reach service", http.StatusInternalServerError, err)
 	}
 	if res.StatusCode != http.StatusOK {
 		fmt.Println(res.StatusCode)
-		return server.NewUpstreamError("Invalid user key.", http.StatusBadRequest)
+		return server.NewUpstreamError("Invalid user key.", http.StatusBadRequest, err)
 	}
 	defer res.Body.Close()
 
