@@ -52,7 +52,7 @@ func Index() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</script></head><body><main class=\"m-8 flex gap-6\"><section id=\"task-list\" hx-get=\"/api/task/refresh/\" hx-trigger=\"task_updated from:body\"></section><div><section id=\"user-list\"></section><div class=\"mb-4\"></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</script></head><body><main class=\"h-screen overflow-hidden flex\"><div class=\"m-8 flex gap-6\"><section id=\"task-list\" hx-get=\"/api/task/refresh\" hx-trigger=\"task_updated from:body\" class=\"flex-1 flex flex-col\"></section><div><section id=\"user-list\"></section><div class=\"mb-4\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -60,7 +60,7 @@ func Index() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></main></body></html>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div></main></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

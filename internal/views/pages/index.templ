@@ -13,16 +13,19 @@ templ Index() {
 			<script src="https://cdn.tailwindcss.com"></script>
 		</head>
 		<body>
-			<main class="m-8 flex gap-6">
-				<section
- 					id="task-list"
- 					hx-get="/api/task/refresh"
- 					hx-trigger="task_updated from:body"
-				></section>
-				<div>
-					<section id="user-list"></section>
-					<div class="mb-4"></div>
-					@partials.UserKeyForm()
+			<main class="h-screen overflow-hidden flex">
+				<div class="m-8 flex gap-6">
+					<section
+ 						id="task-list"
+ 						hx-get="/api/task/refresh"
+ 						hx-trigger="task_updated from:body"
+ 						class="flex-1 flex flex-col"
+					></section>
+					<div>
+						<section id="user-list"></section>
+						<div class="mb-4"></div>
+						@partials.UserKeyForm()
+					</div>
 				</div>
 			</main>
 		</body>

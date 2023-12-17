@@ -46,7 +46,7 @@ templ CurrentTaskAndExecutionLog(taskLog TaskLog) {
 		<h2 class="mb-4 font-bold text-3xl">No tasks</h2>
 	}
 	<h2 class="mb-4 font-bold text-3xl">Task log</h2>
-	<ul>
+	<ul class="flex-1 overflow-auto">
 		for _, t := range taskLog.TaskHistory {
 			<li>
 				@TaskItem(t, true)
