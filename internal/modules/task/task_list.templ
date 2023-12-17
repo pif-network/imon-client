@@ -27,7 +27,7 @@ templ TaskItem(task Task, isLogTask bool) {
 		if (task.State != End && !isLogTask) {
 			<div
  				class="cursor-pointer"
- 				hx-post="/api/task/update/"
+ 				hx-post="/api/task/update"
  				hx-swap="outerHTML"
  				hx-trigger="click"
  				hx-vals={ formatUpdateTaskPayload(End.String()) }
