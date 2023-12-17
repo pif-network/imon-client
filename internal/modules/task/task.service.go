@@ -74,7 +74,7 @@ type UserTaskLogResponse struct {
 
 func GetUserTaskLogById(userKey string) (UserTaskLogResponse, error) {
 	payload := fmt.Sprintf(`{"key": "%s"}`, userKey)
-	res, err := http.Post(
+	resp, err := http.Post(
 		"http://localhost:8000/v1/task-log",
 		"application/json",
 		bytes.NewBuffer([]byte(payload)),
@@ -82,18 +82,18 @@ func GetUserTaskLogById(userKey string) (UserTaskLogResponse, error) {
 	if err != nil {
 		return UserTaskLogResponse{}, server.NewUpstreamError("Cannot reach service", http.StatusInternalServerError, err)
 	}
-	if res.StatusCode != http.StatusOK {
-		return handleNotOkHttpResponse[UserTaskLogResponse](res)
+	if resp.StatusCode != http.StatusOK {
+		return handleNotOkHttpResponse[UserTaskLogResponse](resp)
 	}
-	defer res.Body.Close()
+	defer resp.Body.Close()
 
-	var resp UserTaskLogResponse
-	if err := json.NewDecoder(res.Body).Decode(&resp); err != nil {
-		fmt.Println("error", err)
-		return UserTaskLogResponse{}, core.NewInternalError("Failed to unmarshal response body.", err)
+	var dResp UserTaskLogResponse
+	if err := json.NewDecoder(resp.Body).Decode(&dResp); err != nil {
+		logger.Debug(err.Error())
+		return UserTaskLogResponse{}, core.NewInternalError("Failed to unmarshal response body", err)
 	}
 
-	return resp, nil
+	return dResp, nil
 }
 
 type AllUserRecordsResponse struct {
@@ -104,28 +104,29 @@ type AllUserRecordsResponse struct {
 }
 
 func GetAllUserRecords() (AllUserRecordsResponse, error) {
-	res, err := http.Get("http://localhost:8000/v1/record/all")
+	resp, err := http.Get("http://localhost:8000/v1/record/all")
 	if err != nil {
 		return AllUserRecordsResponse{}, server.NewUpstreamError("Cannot reach service", http.StatusInternalServerError, err)
 	}
-	if res.StatusCode != http.StatusOK {
-		return AllUserRecordsResponse{}, server.NewUpstreamError("Invalid user key.", http.StatusBadRequest, err)
+	if resp.StatusCode != http.StatusOK {
+		return handleNotOkHttpResponse[AllUserRecordsResponse](resp)
 	}
-	defer res.Body.Close()
+	defer resp.Body.Close()
 
-	var resp AllUserRecordsResponse
-	if err := json.NewDecoder(res.Body).Decode(&resp); err != nil {
-		fmt.Println("error", err)
-		return AllUserRecordsResponse{}, core.NewInternalError("Failed to unmarshal response body.", err)
+	var dResp AllUserRecordsResponse
+	if err := json.NewDecoder(resp.Body).Decode(&dResp); err != nil {
+		logger.Debug(err.Error())
+		return AllUserRecordsResponse{}, core.NewInternalError("Failed to unmarshal response body", err)
 	}
 
-	return resp, nil
+	return dResp, nil
 }
 
 func UpdateCurrentTask(userKey string, taskState TaskState) error {
 	payload := fmt.Sprintf(`{"key": "%s", "state": "%s"}`, userKey, taskState)
-	fmt.Println(payload)
-	res, err := http.Post(
+	logger.Info(payload)
+
+	resp, err := http.Post(
 		"http://localhost:8000/v1/task/update",
 		"application/json",
 		bytes.NewBuffer([]byte(payload)),
@@ -133,11 +134,11 @@ func UpdateCurrentTask(userKey string, taskState TaskState) error {
 	if err != nil {
 		return server.NewUpstreamError("Cannot reach service", http.StatusInternalServerError, err)
 	}
-	if res.StatusCode != http.StatusOK {
-		fmt.Println(res.StatusCode)
-		return server.NewUpstreamError("Invalid user key.", http.StatusBadRequest, err)
+	if resp.StatusCode != http.StatusOK {
+		_, err := handleNotOkHttpResponse[interface{}](resp)
+		return err
 	}
-	defer res.Body.Close()
+	defer resp.Body.Close()
 
 	return nil
 }

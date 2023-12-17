@@ -70,15 +70,15 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := UpdateCurrentTask(userKey, TaskState(state))
 	if err != nil {
-		log.Error(err)
-		if server.IsUpstreamError(err) {
-			log.Printf(err.Error())
+		logger.Error(err.Error())
+
+		if ferr, ok := server.FixableByClient(err); ok {
+			_ = components.ErrorWidget(ferr.Display()).Render(r.Context(), w)
+			return
+		} else {
 			_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
 			return
 		}
-		log.Printf(err.Error())
-		_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
-		return
 	}
 
 	w.Header().Set("HX-Trigger", "task_updated")
@@ -91,34 +91,34 @@ func RefreshAppDataHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := GetUserTaskLogById(userKey)
+	respTaskLog, err := GetUserTaskLogById(userKey)
 	if err != nil {
-		if server.IsUpstreamError(err) {
-			log.Printf(err.Error())
+		logger.Error(err.Error())
+
+		if ferr, ok := server.FixableByClient(err); ok {
+			_ = components.ErrorWidget(ferr.Display()).Render(r.Context(), w)
+			return
+		} else {
 			_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
 			return
 		}
-		log.Printf(err.Error())
-		_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
-		return
 	}
-	log.Printf("%+v\n", resp)
 
-	res, err := GetAllUserRecords()
+	respAllRecords, err := GetAllUserRecords()
 	if err != nil {
-		if server.IsUpstreamError(err) {
-			log.Printf(err.Error())
+		logger.Error(err.Error())
+
+		if ferr, ok := server.FixableByClient(err); ok {
+			_ = components.ErrorWidget(ferr.Display()).Render(r.Context(), w)
+			return
+		} else {
 			_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
 			return
 		}
-		log.Printf(err.Error())
-		_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
-		return
 	}
-	log.Printf("%+v\n", res)
 
-	_ = CurrentTaskAndExecutionLog(resp.Data.TaskLog).Render(r.Context(), w)
-	_ = ActiveUserList(res.Data.UserRecords).Render(r.Context(), w)
+	_ = CurrentTaskAndExecutionLog(respTaskLog.Data.TaskLog).Render(r.Context(), w)
+	_ = ActiveUserList(respAllRecords.Data.UserRecords).Render(r.Context(), w)
 }
 
 func GetTaskRouter() *server.Router {

@@ -28,7 +28,7 @@ func (e *UpstreamError) Error() string {
 	}
 }
 func (e *UpstreamError) Display() string {
-	return e.msg
+	return fmt.Sprintf("[Upstream_Error] %s.", e.msg)
 }
 func IsUpstreamError(err error) bool {
 	_, ok := err.(*UpstreamError)

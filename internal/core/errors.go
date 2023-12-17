@@ -5,6 +5,7 @@ import (
 )
 
 type AppError interface {
+	// Display returns a user-friendly message.
 	Display() string
 }
 
@@ -28,5 +29,5 @@ func (e *internalError) Error() string {
 	}
 }
 func (e *internalError) Display() string {
-	return e.msg
+	return fmt.Sprintf("[Internal_Error] %s.", e.msg)
 }

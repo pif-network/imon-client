@@ -27,12 +27,12 @@ func handleNotOkHttpResponse[T interface{}](res *http.Response) (T, error) {
 	if bBody, err := io.ReadAll(res.Body); err != nil {
 		logger.Debug(err.Error())
 		return t, core.NewInternalError(
-			"[Internal_Error] Cannot read request body.", err,
+			"Cannot read request body", err,
 		)
 	} else {
 		logger.Debug("upstream_response", "body", string(bBody))
 	}
 	return t, server.NewUpstreamError(
-		"[Upstream_Error] Invalid user key.", http.StatusBadRequest, nil,
+		"Invalid user key", http.StatusBadRequest, nil,
 	)
 }
