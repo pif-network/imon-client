@@ -8,7 +8,8 @@ import (
 
 type UpstreamError struct {
 	statusCode int
-	msg        string
+	// msg is us-defined message at creation time.
+	msg string
 	error
 }
 

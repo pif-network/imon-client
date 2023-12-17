@@ -2,8 +2,6 @@ package core
 
 import (
 	"fmt"
-
-	"github.com/charmbracelet/log"
 )
 
 type AppError interface {
@@ -12,14 +10,23 @@ type AppError interface {
 
 // Wrapper for internal errors, with concise cause.
 type internalError struct {
-	error error
-	cause string
+	msg string
+	error
 }
 
-func InternalError(cause string, err error) *internalError {
-	log.Error(fmt.Sprintf("[ERROR] Internal_Error: %s", cause))
-	return &internalError{err, cause}
+func NewInternalError(msg string, err error) *internalError {
+	return &internalError{
+		msg:   msg,
+		error: err,
+	}
 }
 func (e *internalError) Error() string {
-	return fmt.Sprintf("[ERROR] Internal_Error: %s", e.cause)
+	if e.error == nil {
+		return fmt.Sprintf("Internal_Error: %s", e.msg)
+	} else {
+		return fmt.Sprintf("Internal_Error: %s", e.error.Error())
+	}
+}
+func (e *internalError) Display() string {
+	return e.msg
 }

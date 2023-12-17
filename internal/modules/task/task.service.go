@@ -87,12 +87,15 @@ func GetUserTaskLogById(userKey string) (UserTaskLogResponse, error) {
 		// NOTE: The only not-ok status that this client is currently able to cause is 400.
 		logger.Debug("upstream_response", "code", res.StatusCode)
 		if bBody, err := io.ReadAll(res.Body); err != nil {
-			logger.Error(err.Error())
+			logger.Debug(err.Error())
+			return UserTaskLogResponse{}, core.NewInternalError(
+				"[Internal_Error] Cannot read request body.", err,
+			)
 		} else {
 			logger.Debug("upstream_response", "body", string(bBody))
 		}
 		return UserTaskLogResponse{}, server.NewUpstreamError(
-			"[Upstream_Error] Invalid user key.", http.StatusBadRequest, fmt.Errorf("Invalid user key"),
+			"[Upstream_Error] Invalid user key.", http.StatusBadRequest, nil,
 		)
 	}
 	defer res.Body.Close()
@@ -100,7 +103,7 @@ func GetUserTaskLogById(userKey string) (UserTaskLogResponse, error) {
 	var resp UserTaskLogResponse
 	if err := json.NewDecoder(res.Body).Decode(&resp); err != nil {
 		fmt.Println("error", err)
-		return UserTaskLogResponse{}, core.InternalError("Failed to unmarshal response body.", err)
+		return UserTaskLogResponse{}, core.NewInternalError("Failed to unmarshal response body.", err)
 	}
 
 	return resp, nil
@@ -126,7 +129,7 @@ func GetAllUserRecords() (AllUserRecordsResponse, error) {
 	var resp AllUserRecordsResponse
 	if err := json.NewDecoder(res.Body).Decode(&resp); err != nil {
 		fmt.Println("error", err)
-		return AllUserRecordsResponse{}, core.InternalError("Failed to unmarshal response body.", err)
+		return AllUserRecordsResponse{}, core.NewInternalError("Failed to unmarshal response body.", err)
 	}
 
 	return resp, nil
