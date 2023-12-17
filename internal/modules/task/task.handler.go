@@ -40,7 +40,7 @@ func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 		logger.Error(err.Error())
 
 		if ferr, ok := server.FixableByClient(err); ok {
-			_ = components.ErrorWidget(ferr.Msg()).Render(r.Context(), w)
+			_ = components.ErrorWidget(ferr.Display()).Render(r.Context(), w)
 			return
 		} else {
 			_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)

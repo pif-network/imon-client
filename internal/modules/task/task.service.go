@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
-	"github.com/charmbracelet/log"
 	"the-gorgeouses.com/imon-client/internal/core"
 	"the-gorgeouses.com/imon-client/internal/core/server"
 )
@@ -85,8 +85,15 @@ func GetUserTaskLogById(userKey string) (UserTaskLogResponse, error) {
 	}
 	if res.StatusCode != http.StatusOK {
 		// NOTE: The only not-ok status that this client is currently able to cause is 400.
-		log.Debug("status code", "code", res.StatusCode)
-		return UserTaskLogResponse{}, server.NewUpstreamError("Invalid user key", http.StatusBadRequest, err)
+		logger.Debug("upstream_response", "code", res.StatusCode)
+		if bBody, err := io.ReadAll(res.Body); err != nil {
+			logger.Error(err.Error())
+		} else {
+			logger.Debug("upstream_response", "body", string(bBody))
+		}
+		return UserTaskLogResponse{}, server.NewUpstreamError(
+			"[Upstream_Error] Invalid user key.", http.StatusBadRequest, fmt.Errorf("Invalid user key"),
+		)
 	}
 	defer res.Body.Close()
 

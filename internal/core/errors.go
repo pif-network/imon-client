@@ -7,7 +7,7 @@ import (
 )
 
 type AppError interface {
-	Msg() string
+	Display() string
 }
 
 // Wrapper for internal errors, with concise cause.

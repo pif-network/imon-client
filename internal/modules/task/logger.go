@@ -12,4 +12,5 @@ var logger = log.NewWithOptions(os.Stderr, log.Options{
 	ReportTimestamp: true,
 	TimeFormat:      time.Kitchen,
 	Prefix:          "task_module",
+	Level:           log.DebugLevel,
 })
