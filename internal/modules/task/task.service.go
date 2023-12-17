@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 
 	"the-gorgeouses.com/imon-client/internal/core"
@@ -84,19 +83,7 @@ func GetUserTaskLogById(userKey string) (UserTaskLogResponse, error) {
 		return UserTaskLogResponse{}, server.NewUpstreamError("Cannot reach service", http.StatusInternalServerError, err)
 	}
 	if res.StatusCode != http.StatusOK {
-		// NOTE: The only not-ok status that this client is currently able to cause is 400.
-		logger.Debug("upstream_response", "code", res.StatusCode)
-		if bBody, err := io.ReadAll(res.Body); err != nil {
-			logger.Debug(err.Error())
-			return UserTaskLogResponse{}, core.NewInternalError(
-				"[Internal_Error] Cannot read request body.", err,
-			)
-		} else {
-			logger.Debug("upstream_response", "body", string(bBody))
-		}
-		return UserTaskLogResponse{}, server.NewUpstreamError(
-			"[Upstream_Error] Invalid user key.", http.StatusBadRequest, nil,
-		)
+		return handleNotOkHttpResponse[UserTaskLogResponse](res)
 	}
 	defer res.Body.Close()
 
