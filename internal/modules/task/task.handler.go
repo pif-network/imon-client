@@ -35,7 +35,7 @@ func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 	log.Info("", "userKey", userKey)
 	routerState.SetUserKey(userKey)
 
-	resp, err := GetUserTaskLogById(userKey)
+	respTaskLog, err := GetUserTaskLogById(userKey)
 	if err != nil {
 		logger.Error(err.Error())
 
@@ -43,25 +43,26 @@ func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 			_ = components.ErrorWidget(ferr.Display()).Render(r.Context(), w)
 			return
 		} else {
-			_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
+			_ = components.ErrorWidget("Internal_Error: Well, something is broken.").Render(r.Context(), w)
 			return
 		}
 	}
 
-	res, err := GetAllUserRecords()
+	respAllRecords, err := GetAllUserRecords()
 	if err != nil {
-		if server.IsUpstreamError(err) {
-			log.Printf(err.Error())
-			_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
+		logger.Error(err.Error())
+
+		if ferr, ok := server.FixableByClient(err); ok {
+			_ = components.ErrorWidget(ferr.Display()).Render(r.Context(), w)
+			return
+		} else {
+			_ = components.ErrorWidget("Internal_Error: Well, something is broken.").Render(r.Context(), w)
 			return
 		}
-		log.Printf(err.Error())
-		_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
-		return
 	}
 
-	_ = CurrentTaskAndExecutionLog(resp.Data.TaskLog).Render(r.Context(), w)
-	_ = ActiveUserList(res.Data.UserRecords).Render(r.Context(), w)
+	_ = CurrentTaskAndExecutionLog(respTaskLog.Data.TaskLog).Render(r.Context(), w)
+	_ = ActiveUserList(respAllRecords.Data.UserRecords).Render(r.Context(), w)
 }
 
 func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
@@ -76,7 +77,7 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 			_ = components.ErrorWidget(ferr.Display()).Render(r.Context(), w)
 			return
 		} else {
-			_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
+			_ = components.ErrorWidget("Internal_Error: Well, something is broken.").Render(r.Context(), w)
 			return
 		}
 	}
@@ -99,7 +100,7 @@ func RefreshAppDataHandler(w http.ResponseWriter, r *http.Request) {
 			_ = components.ErrorWidget(ferr.Display()).Render(r.Context(), w)
 			return
 		} else {
-			_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
+			_ = components.ErrorWidget("Internal_Error: Well, something is broken.").Render(r.Context(), w)
 			return
 		}
 	}
@@ -112,7 +113,7 @@ func RefreshAppDataHandler(w http.ResponseWriter, r *http.Request) {
 			_ = components.ErrorWidget(ferr.Display()).Render(r.Context(), w)
 			return
 		} else {
-			_ = components.ErrorWidget(err.Error()).Render(r.Context(), w)
+			_ = components.ErrorWidget("Internal_Error: Well, something is broken.").Render(r.Context(), w)
 			return
 		}
 	}
