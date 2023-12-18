@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"the-gorgeouses.com/imon-client/internal/core"
-	"the-gorgeouses.com/imon-client/internal/core/server"
 )
 
 type TaskState string
@@ -80,7 +79,7 @@ func GetUserTaskLogById(userKey string) (UserTaskLogResponse, error) {
 		bytes.NewBuffer([]byte(payload)),
 	)
 	if err != nil {
-		return UserTaskLogResponse{}, server.NewUpstreamError("Cannot reach service", http.StatusInternalServerError, err)
+		return handleErrorHttpResponse[UserTaskLogResponse](resp, err)
 	}
 	if resp.StatusCode != http.StatusOK {
 		return handleNotOkHttpResponse[UserTaskLogResponse](resp)
@@ -106,7 +105,7 @@ type AllUserRecordsResponse struct {
 func GetAllUserRecords() (AllUserRecordsResponse, error) {
 	resp, err := http.Get("http://localhost:8000/v1/record/all")
 	if err != nil {
-		return AllUserRecordsResponse{}, server.NewUpstreamError("Cannot reach service", http.StatusInternalServerError, err)
+		return handleErrorHttpResponse[AllUserRecordsResponse](resp, err)
 	}
 	if resp.StatusCode != http.StatusOK {
 		return handleNotOkHttpResponse[AllUserRecordsResponse](resp)
@@ -132,7 +131,8 @@ func UpdateCurrentTask(userKey string, taskState TaskState) error {
 		bytes.NewBuffer([]byte(payload)),
 	)
 	if err != nil {
-		return server.NewUpstreamError("Cannot reach service", http.StatusInternalServerError, err)
+		_, err = handleErrorHttpResponse[interface{}](resp, err)
+		return err
 	}
 	if resp.StatusCode != http.StatusOK {
 		_, err := handleNotOkHttpResponse[interface{}](resp)

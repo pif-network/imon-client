@@ -36,3 +36,8 @@ func handleNotOkHttpResponse[T interface{}](res *http.Response) (T, error) {
 		"Invalid user key", http.StatusBadRequest, nil,
 	)
 }
+
+func handleErrorHttpResponse[T interface{}](res *http.Response, error error) (T, error) {
+	var t T
+	return t, core.NewInternalError("Failed to perform HTTP request.", error)
+}
