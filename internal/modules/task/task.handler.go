@@ -46,10 +46,18 @@ func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 		logger.Error(err.Error())
 
 		if ferr, ok := server.FixableByClient(err); ok {
-			_ = components.ErrorWidget(CompSwapId.KeyForm, ferr.Display()).Render(r.Context(), w)
+			_ = components.ErrorWidget(
+				CompSwapId.KeyForm,
+				ferr.Display()).Render(r.Context(),
+				w,
+			)
 			return
 		} else {
-			_ = components.ErrorWidget(CompSwapId.KeyForm, "Internal_Error: Well, something is broken.").Render(r.Context(), w)
+			_ = components.ErrorWidget(
+				CompSwapId.KeyForm,
+				"Internal_Error: Well, something is broken.").Render(r.Context(),
+				w,
+			)
 			return
 		}
 	}
@@ -59,10 +67,18 @@ func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 		logger.Error(err.Error())
 
 		if ferr, ok := server.FixableByClient(err); ok {
-			_ = components.ErrorWidget(CompSwapId.KeyForm, ferr.Display()).Render(r.Context(), w)
+			_ = components.ErrorWidget(
+				CompSwapId.KeyForm,
+				ferr.Display()).Render(r.Context(),
+				w,
+			)
 			return
 		} else {
-			_ = components.ErrorWidget(CompSwapId.KeyForm, "Internal_Error: Well, something is broken.").Render(r.Context(), w)
+			_ = components.ErrorWidget(
+				CompSwapId.KeyForm,
+				"Internal_Error: Well, something is broken.").Render(r.Context(),
+				w,
+			)
 			return
 		}
 	}
@@ -80,10 +96,18 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 		logger.Error(err.Error())
 
 		if ferr, ok := server.FixableByClient(err); ok {
-			_ = components.ErrorWidget(CompSwapId.KeyForm, ferr.Display()).Render(r.Context(), w)
+			_ = components.ErrorWidget(
+				CompSwapId.KeyForm,
+				ferr.Display()).Render(r.Context(),
+				w,
+			)
 			return
 		} else {
-			_ = components.ErrorWidget(CompSwapId.KeyForm, "Internal_Error: Well, something is broken.").Render(r.Context(), w)
+			_ = components.ErrorWidget(
+				CompSwapId.KeyForm,
+				"Internal_Error: Well, something is broken.").Render(r.Context(),
+				w,
+			)
 			return
 		}
 	}
@@ -103,10 +127,18 @@ func RefreshAppDataHandler(w http.ResponseWriter, r *http.Request) {
 		logger.Error(err.Error())
 
 		if ferr, ok := server.FixableByClient(err); ok {
-			_ = components.ErrorWidget(CompSwapId.KeyForm, ferr.Display()).Render(r.Context(), w)
+			_ = components.ErrorWidget(
+				CompSwapId.KeyForm,
+				ferr.Display()).Render(r.Context(),
+				w,
+			)
 			return
 		} else {
-			_ = components.ErrorWidget(CompSwapId.KeyForm, "Internal_Error: Well, something is broken.").Render(r.Context(), w)
+			_ = components.ErrorWidget(
+				CompSwapId.KeyForm,
+				"Internal_Error: Well, something is broken.").Render(r.Context(),
+				w,
+			)
 			return
 		}
 	}
@@ -116,10 +148,18 @@ func RefreshAppDataHandler(w http.ResponseWriter, r *http.Request) {
 		logger.Error(err.Error())
 
 		if ferr, ok := server.FixableByClient(err); ok {
-			_ = components.ErrorWidget(CompSwapId.KeyForm, ferr.Display()).Render(r.Context(), w)
+			_ = components.ErrorWidget(
+				CompSwapId.KeyForm,
+				ferr.Display()).Render(r.Context(),
+				w,
+			)
 			return
 		} else {
-			_ = components.ErrorWidget(CompSwapId.KeyForm, "Internal_Error: Well, something is broken.").Render(r.Context(), w)
+			_ = components.ErrorWidget(
+				CompSwapId.KeyForm,
+				"Internal_Error: Well, something is broken.").Render(r.Context(),
+				w,
+			)
 			return
 		}
 	}
