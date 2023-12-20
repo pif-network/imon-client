@@ -1,7 +1,7 @@
 package components
 
-templ ErrorWidget(displayText string) {
-	<div class="p-4 mb-2 border border-red-400 rounded-lg" id="key-form-error" hx-swap-oob="true">
+templ ErrorWidget(swapId string,displayText string) {
+	<div class="p-4 mb-2 border border-red-400 rounded-lg" id={ swapId } hx-swap-oob="true">
 		<h2>{ displayText }</h2>
 	</div>
 }
