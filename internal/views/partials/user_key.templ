@@ -1,23 +1,27 @@
 package partials
 
 templ UserKeyForm() {
-	<div class="mb-4" id="key-form-error"></div>
 	<form
- 		class="flex flex-col"
- 		hx-post="/api/task/post-key"
- 		hx-target="#task-list"
- 		hx-swap="innerHTML"
+		class="flex flex-col"
+		hx-post="/api/task/post-key"
+		hx-target="#task-list"
+		hx-swap="innerHTML"
 	>
+		<div class="" id="key-form-error"></div>
 		<label for="user-key">Your `user_key`</label>
 		<input
- 			class="p-2 border border-gray-400 rounded-lg"
- 			type="text"
- 			name="user-key"
- 			id="user-key"
- 			placeholder="0000"
+			class="p-2 border border-gray-400 rounded-lg"
+			type="text"
+			name="user-key"
+			id="user-key"
+			placeholder="0000"
 		/>
 		<div class="mb-3"></div>
-		<button class="p-4 border border-gray-700 rounded-lg" type="submit">
+		<button
+			class="p-4 border border-gray-700 rounded-lg"
+			type="submit"
+			_="on click set #key-form-error.innerHTML to ''"
+		>
 			Submit
 		</button>
 	</form>

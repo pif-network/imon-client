@@ -74,7 +74,7 @@ type UserTaskLogResponse struct {
 func GetUserTaskLogById(userKey string) (UserTaskLogResponse, error) {
 	payload := fmt.Sprintf(`{"key": "%s"}`, userKey)
 	resp, err := http.Post(
-		"http://localhost:8000/v1/task-log",
+		"http://localhost:8000/v1/record",
 		"application/json",
 		bytes.NewBuffer([]byte(payload)),
 	)

@@ -23,7 +23,7 @@ func UserKeyForm() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"mb-4\" id=\"key-form-error\"></div><form class=\"flex flex-col\" hx-post=\"/api/task/post-key\" hx-target=\"#task-list\" hx-swap=\"innerHTML\"><label for=\"user-key\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form class=\"flex flex-col\" hx-post=\"/api/task/post-key\" hx-target=\"#task-list\" hx-swap=\"innerHTML\"><div class=\"\" id=\"key-form-error\"></div><label for=\"user-key\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -32,7 +32,7 @@ func UserKeyForm() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</label> <input class=\"p-2 border border-gray-400 rounded-lg\" type=\"text\" name=\"user-key\" id=\"user-key\" placeholder=\"0000\"><div class=\"mb-3\"></div><button class=\"p-4 border border-gray-700 rounded-lg\" type=\"submit\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</label> <input class=\"p-2 border border-gray-400 rounded-lg\" type=\"text\" name=\"user-key\" id=\"user-key\" placeholder=\"0000\"><div class=\"mb-3\"></div><button class=\"p-4 border border-gray-700 rounded-lg\" type=\"submit\" _=\"on click set #key-form-error.innerHTML to &#39;&#39;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

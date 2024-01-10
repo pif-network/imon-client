@@ -10,16 +10,17 @@ templ Index() {
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
 			<script src="https://unpkg.com/htmx.org@1.9.8" integrity="sha384-rgjA7mptc2ETQqXoYC3/zJvkU7K/aP44Y+z7xQuJiVnB/422P/Ak+F/AqFR7E4Wr" crossorigin="anonymous"></script>
+			<script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
 			<script src="https://cdn.tailwindcss.com"></script>
 		</head>
 		<body>
 			<main class="h-screen overflow-hidden flex">
 				<div class="m-8 flex gap-6">
 					<section
- 						id="task-list"
- 						hx-get="/api/task/refresh"
- 						hx-trigger="task_updated from:body"
- 						class="flex-1 flex flex-col"
+						id="task-list"
+						hx-get="/api/task/refresh"
+						hx-trigger="task_updated from:body"
+						class="flex-1 flex flex-col"
 					></section>
 					<div>
 						<section id="user-list"></section>

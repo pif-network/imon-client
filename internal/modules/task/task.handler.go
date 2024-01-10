@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/charmbracelet/log"
+
 	"the-gorgeouses.com/imon-client/internal/core/server"
 	"the-gorgeouses.com/imon-client/internal/views/components"
 )
@@ -82,6 +83,8 @@ func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+
+	// w.Header().Set("HX-Trigger", "task_updated")
 
 	_ = CurrentTaskAndExecutionLog(respTaskLog.Data.TaskLog).Render(r.Context(), w)
 	_ = ActiveUserList(respAllRecords.Data.UserRecords).Render(r.Context(), w)
