@@ -1,6 +1,9 @@
 package pages
 
+import "fmt"
+
 import "the-gorgeouses.com/imon-client/internal/views/partials"
+import "the-gorgeouses.com/imon-client/internal/core/shared"
 
 templ Index() {
 	<!DOCTYPE html>
@@ -19,7 +22,7 @@ templ Index() {
 					<section
 						id="task-list"
 						hx-get="/api/task/refresh"
-						hx-trigger="task_updated from:body"
+						hx-trigger={ fmt.Sprintf("%s from:body", shared.ClientEvt.ShouldRefresh) }
 						class="flex-1 flex flex-col"
 					></section>
 					<div>

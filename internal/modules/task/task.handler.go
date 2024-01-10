@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/log"
 
 	"the-gorgeouses.com/imon-client/internal/core/server"
+	"the-gorgeouses.com/imon-client/internal/core/shared"
 	"the-gorgeouses.com/imon-client/internal/views/components"
 )
 
@@ -42,52 +43,7 @@ func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 	log.Info("", "userKey", userKey)
 	routerState.SetUserKey(userKey)
 
-	respTaskLog, err := GetUserTaskLogById(userKey)
-	if err != nil {
-		logger.Error(err.Error())
-
-		if ferr, ok := server.FixableByClient(err); ok {
-			_ = components.ErrorWidget(
-				CompSwapId.KeyForm,
-				ferr.Display()).Render(r.Context(),
-				w,
-			)
-			return
-		} else {
-			_ = components.ErrorWidget(
-				CompSwapId.KeyForm,
-				"Internal_Error: Well, something is broken.").Render(r.Context(),
-				w,
-			)
-			return
-		}
-	}
-
-	respAllRecords, err := GetAllUserRecords()
-	if err != nil {
-		logger.Error(err.Error())
-
-		if ferr, ok := server.FixableByClient(err); ok {
-			_ = components.ErrorWidget(
-				CompSwapId.KeyForm,
-				ferr.Display()).Render(r.Context(),
-				w,
-			)
-			return
-		} else {
-			_ = components.ErrorWidget(
-				CompSwapId.KeyForm,
-				"Internal_Error: Well, something is broken.").Render(r.Context(),
-				w,
-			)
-			return
-		}
-	}
-
-	// w.Header().Set("HX-Trigger", "task_updated")
-
-	_ = CurrentTaskAndExecutionLog(respTaskLog.Data.TaskLog).Render(r.Context(), w)
-	_ = ActiveUserList(respAllRecords.Data.UserRecords).Render(r.Context(), w)
+	w.Header().Set("HX-Trigger", shared.ClientEvt.ShouldRefresh)
 }
 
 func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {

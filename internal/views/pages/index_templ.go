@@ -10,7 +10,10 @@ import "context"
 import "io"
 import "bytes"
 
+import "fmt"
+
 import "the-gorgeouses.com/imon-client/internal/views/partials"
+import "the-gorgeouses.com/imon-client/internal/core/shared"
 
 func Index() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
@@ -61,7 +64,15 @@ func Index() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</script></head><body><main class=\"h-screen overflow-hidden flex\"><div class=\"m-8 flex gap-6\"><section id=\"task-list\" hx-get=\"/api/task/refresh\" hx-trigger=\"task_updated from:body\" class=\"flex-1 flex flex-col\"></section><div><section id=\"user-list\"></section><div class=\"mb-4\"></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</script></head><body><main class=\"h-screen overflow-hidden flex\"><div class=\"m-8 flex gap-6\"><section id=\"task-list\" hx-get=\"/api/task/refresh\" hx-trigger=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(fmt.Sprintf("%s from:body", shared.ClientEvt.ShouldRefresh)))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"flex-1 flex flex-col\"></section><div><section id=\"user-list\"></section><div class=\"mb-4\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
