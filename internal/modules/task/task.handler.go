@@ -2,6 +2,8 @@ package task
 
 import (
 	"net/http"
+	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/charmbracelet/log"
@@ -17,23 +19,53 @@ var CompSwapId = struct {
 	KeyForm: "key-form-error",
 }
 
+type UserKey struct {
+	raw      string
+	typeName string
+	name     string
+	Id       int
+}
+
 type RouterState struct {
-	userKey string
+	userKey UserKey
 	mu      sync.Mutex
 }
 
-func (rs *RouterState) SetUserKey(userKey string) {
+func (rs *RouterState) SetUserKey(userKey string) error {
 	rs.mu.Lock()
 	defer rs.mu.Unlock()
 
-	rs.userKey = userKey
+	// $type:$name:$id
+	parts := strings.Split(userKey, ":")
+	if len(parts) != 3 {
+		rs.userKey = UserKey{
+			raw: userKey,
+		}
+		return nil
+	}
+	id, err := strconv.Atoi(parts[2])
+	if err != nil {
+		rs.userKey = UserKey{
+			raw: userKey,
+		}
+		return err
+	}
+
+	rs.userKey = UserKey{
+		raw:      userKey,
+		typeName: parts[0],
+		name:     parts[1],
+		Id:       id,
+	}
+
+	return nil
 }
 
 func (rs *RouterState) GetUserKey() string {
 	rs.mu.Lock()
 	defer rs.mu.Unlock()
 
-	return rs.userKey
+	return rs.userKey.raw
 }
 
 var routerState = &RouterState{}
@@ -71,7 +103,7 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	w.Header().Set("HX-Trigger", "task_updated")
+	w.Header().Set("HX-Trigger", shared.ClientEvt.ShouldRefresh)
 }
 
 func RefreshAppDataHandler(w http.ResponseWriter, r *http.Request) {
