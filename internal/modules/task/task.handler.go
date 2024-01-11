@@ -19,53 +19,57 @@ var CompSwapId = struct {
 	KeyForm: "key-form-error",
 }
 
-type UserKey struct {
-	raw      string
-	typeName string
+type Record interface {
+	RefreshData()
+}
+
+type User struct {
+	userKey  string
+	userType string
 	name     string
-	Id       int
+	id       int
 }
 
 type RouterState struct {
-	userKey UserKey
-	mu      sync.Mutex
+	user User
+	mu   sync.Mutex
 }
 
-func (rs *RouterState) SetUserKey(userKey string) error {
+func (rs *RouterState) SetUserKey(userKey string) {
 	rs.mu.Lock()
 	defer rs.mu.Unlock()
 
 	// $type:$name:$id
 	parts := strings.Split(userKey, ":")
 	if len(parts) != 3 {
-		rs.userKey = UserKey{
-			raw: userKey,
+		// Invalid, but not handling here.
+		rs.user = User{
+			userKey: userKey,
 		}
-		return nil
+		return
 	}
 	id, err := strconv.Atoi(parts[2])
 	if err != nil {
-		rs.userKey = UserKey{
-			raw: userKey,
+		// Invalid, but not handling here.
+		rs.user = User{
+			userKey: userKey,
 		}
-		return err
+		return
 	}
 
-	rs.userKey = UserKey{
-		raw:      userKey,
-		typeName: parts[0],
+	rs.user = User{
+		userKey:  userKey,
+		userType: parts[0],
 		name:     parts[1],
-		Id:       id,
+		id:       id,
 	}
-
-	return nil
 }
 
-func (rs *RouterState) GetUserKey() string {
+func (rs *RouterState) GetUserKey() User {
 	rs.mu.Lock()
 	defer rs.mu.Unlock()
 
-	return rs.userKey.raw
+	return rs.user
 }
 
 var routerState = &RouterState{}
@@ -80,9 +84,9 @@ func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 
 func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	state := r.PostFormValue("state")
-	userKey := routerState.GetUserKey()
+	user := routerState.GetUserKey()
 
-	err := UpdateCurrentTask(userKey, TaskState(state))
+	err := UpdateCurrentTask(user.userKey, TaskState(state))
 	if err != nil {
 		logger.Error(err.Error())
 
@@ -107,13 +111,13 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func RefreshAppDataHandler(w http.ResponseWriter, r *http.Request) {
-	userKey := routerState.GetUserKey()
-	if userKey == "" {
+	user := routerState.GetUserKey()
+	if user.userKey == "" {
 		http.Error(w, "Incorrect flow - First post the user key.", http.StatusForbidden)
 		return
 	}
 
-	respTaskLog, err := GetUserTaskLogById(userKey)
+	respTaskLog, err := GetUserTaskLogById(user.userKey)
 	if err != nil {
 		logger.Error(err.Error())
 
