@@ -6,8 +6,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/charmbracelet/log"
-
 	"the-gorgeouses.com/imon-client/internal/core/server"
 	"the-gorgeouses.com/imon-client/internal/core/shared"
 	"the-gorgeouses.com/imon-client/internal/views/components"
@@ -17,39 +15,6 @@ var CompSwapId = struct {
 	KeyForm string
 }{
 	KeyForm: "key-form-error",
-}
-
-type Record interface {
-	RefreshData(w http.ResponseWriter, r *http.Request) error
-}
-
-type User struct {
-	userKey  string
-	userType string
-	name     string
-	id       int
-}
-
-func (u User) RefreshData(w http.ResponseWriter, r *http.Request) error {
-	switch u.userType {
-	case "user":
-		respTaskLog, err := GetUserTaskLogById(u.userKey)
-		if err != nil {
-			return err
-		}
-		_ = CurrentTaskAndExecutionLog(respTaskLog.Data.TaskLog).Render(r.Context(), w)
-		respAllRecords, err := GetAllUserRecords()
-		if err != nil {
-			return err
-		}
-		_ = ActiveUserList(respAllRecords.Data.UserRecords).Render(r.Context(), w)
-	case "sudo":
-		log.Info("Refreshing data for user", "user", u)
-		return nil
-	default:
-		return nil
-	}
-	return nil
 }
 
 type RouterState struct {
@@ -98,7 +63,7 @@ var routerState = &RouterState{}
 
 func PostKeyHandler(w http.ResponseWriter, r *http.Request) {
 	userKey := r.PostFormValue("user-key")
-	log.Info("", "userKey", userKey)
+	logger.Info("", "userKey", userKey)
 	routerState.SetUserKey(userKey)
 
 	w.Header().Set("HX-Trigger", shared.ClientEvt.ShouldRefresh)
@@ -134,10 +99,6 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 func RefreshAppDataHandler(w http.ResponseWriter, r *http.Request) {
 	user := routerState.GetUserKey()
-	if user.userKey == "" {
-		http.Error(w, "Incorrect flow - First post the user key.", http.StatusForbidden)
-		return
-	}
 
 	err := user.RefreshData(w, r)
 	if err != nil {

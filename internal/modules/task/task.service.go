@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"the-gorgeouses.com/imon-client/internal/core"
+	"the-gorgeouses.com/imon-client/internal/core/server"
 )
 
 type TaskState string
@@ -140,5 +141,38 @@ func UpdateCurrentTask(userKey string, taskState TaskState) error {
 	}
 	defer resp.Body.Close()
 
+	return nil
+}
+
+type User struct {
+	userKey  string
+	userType string
+	name     string
+	id       int
+}
+
+// RefreshData refreshes the data of the record, then renders them accordingly.
+func (u User) RefreshData(w http.ResponseWriter, r *http.Request) error {
+	switch u.userType {
+	case "user":
+		respTaskLog, err := GetUserTaskLogById(u.userKey)
+		if err != nil {
+			logger.Error(err.Error())
+			return err
+		}
+		_ = CurrentTaskAndExecutionLog(respTaskLog.Data.TaskLog).Render(r.Context(), w)
+		respAllRecords, err := GetAllUserRecords()
+		if err != nil {
+			return err
+		}
+		_ = ActiveUserList(respAllRecords.Data.UserRecords).Render(r.Context(), w)
+	case "sudo":
+		logger.Info("Refreshing data for user", "user", u)
+		return nil
+	default:
+		return server.NewUpstreamError(
+			"Invalid user key", http.StatusBadRequest, nil,
+		)
+	}
 	return nil
 }
