@@ -20,7 +20,7 @@ var CompSwapId = struct {
 }
 
 type Record interface {
-	RefreshData()
+	RefreshData(w http.ResponseWriter, r *http.Request) error
 }
 
 type User struct {
@@ -28,6 +28,28 @@ type User struct {
 	userType string
 	name     string
 	id       int
+}
+
+func (u User) RefreshData(w http.ResponseWriter, r *http.Request) error {
+	switch u.userType {
+	case "user":
+		respTaskLog, err := GetUserTaskLogById(u.userKey)
+		if err != nil {
+			return err
+		}
+		_ = CurrentTaskAndExecutionLog(respTaskLog.Data.TaskLog).Render(r.Context(), w)
+		respAllRecords, err := GetAllUserRecords()
+		if err != nil {
+			return err
+		}
+		_ = ActiveUserList(respAllRecords.Data.UserRecords).Render(r.Context(), w)
+	case "sudo":
+		log.Info("Refreshing data for user", "user", u)
+		return nil
+	default:
+		return nil
+	}
+	return nil
 }
 
 type RouterState struct {
@@ -117,7 +139,7 @@ func RefreshAppDataHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respTaskLog, err := GetUserTaskLogById(user.userKey)
+	err := user.RefreshData(w, r)
 	if err != nil {
 		logger.Error(err.Error())
 
@@ -137,30 +159,6 @@ func RefreshAppDataHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-
-	respAllRecords, err := GetAllUserRecords()
-	if err != nil {
-		logger.Error(err.Error())
-
-		if ferr, ok := server.FixableByClient(err); ok {
-			_ = components.ErrorWidget(
-				CompSwapId.KeyForm,
-				ferr.Display()).Render(r.Context(),
-				w,
-			)
-			return
-		} else {
-			_ = components.ErrorWidget(
-				CompSwapId.KeyForm,
-				"Internal_Error: Well, something is broken.").Render(r.Context(),
-				w,
-			)
-			return
-		}
-	}
-
-	_ = CurrentTaskAndExecutionLog(respTaskLog.Data.TaskLog).Render(r.Context(), w)
-	_ = ActiveUserList(respAllRecords.Data.UserRecords).Render(r.Context(), w)
 }
 
 func GetTaskRouter() *server.Router {
