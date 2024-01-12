@@ -9,8 +9,8 @@ func formatUpdateTaskPayload(state string) string {
 
 templ TaskItem(task Task, isLogTask bool) {
 	<div
- 		class="p-4 mb-2 flex justify-center items-center gap-2 border border-gray-400 rounded-lg"
- 		hx-target="this"
+		class="p-4 mb-2 flex justify-center items-center gap-2 border border-gray-400 rounded-lg"
+		hx-target="this"
 	>
 		<div>
 			<h3>[{ string(task.State) }] { task.Name }</h3>
@@ -26,16 +26,40 @@ templ TaskItem(task Task, isLogTask bool) {
 		</div>
 		if (task.State != End && !isLogTask) {
 			<div
- 				class="cursor-pointer"
- 				hx-post="/api/task/update"
- 				hx-swap="outerHTML"
- 				hx-trigger="click"
- 				hx-vals={ formatUpdateTaskPayload(End.String()) }
+				class="cursor-pointer"
+				hx-post="/api/task/update"
+				hx-swap="outerHTML"
+				hx-trigger="click"
+				hx-vals={ formatUpdateTaskPayload(End.String()) }
 			>
 				@components.CheckIcon()
 			</div>
 		}
 	</div>
+}
+
+templ STaskItem(task STask) {
+	<div
+		class="p-4 mb-2 flex justify-center items-center gap-2 border border-gray-400 rounded-lg"
+		hx-target="this"
+	>
+		<div>
+			<h3>{ task.Name }</h3>
+		</div>
+	</div>
+}
+
+templ STaskList(tasks []STask) {
+	<section>
+		<h2 class="mb-4 font-bold text-3xl">Published tasks</h2>
+		<ul>
+			for _, task := range tasks {
+				<li>
+					@STaskItem(task)
+				</li>
+			}
+		</ul>
+	</section>
 }
 
 templ CurrentTaskAndExecutionLog(taskLog TaskLog) {

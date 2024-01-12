@@ -173,10 +173,11 @@ func (u User) RefreshData(w http.ResponseWriter, r *http.Request) error {
 		_ = ActiveUserList(respAllRecords.Data.UserRecords).Render(r.Context(), w)
 	case "sudo":
 		respSingleRecord, err := GetSingleRecordSudo(u.userKey)
-		logger.Debug(respSingleRecord)
 		if err != nil {
 			return err
 		}
+		logger.Debug(respSingleRecord)
+		_ = STaskList(respSingleRecord.Data.PublishedTasks).Render(r.Context(), w)
 		return nil
 	default:
 		return server.NewUpstreamError(
