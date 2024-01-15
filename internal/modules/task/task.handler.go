@@ -11,6 +11,7 @@ import (
 	"the-gorgeouses.com/imon-client/internal/views/components"
 )
 
+// CompSwapId is the id of the HTML tag to be swapped.
 var CompSwapId = struct {
 	KeyForm string
 }{
