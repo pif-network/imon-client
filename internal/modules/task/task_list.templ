@@ -40,11 +40,12 @@ templ TaskItem(task Task, isLogTask bool) {
 
 templ STaskItem(task STask) {
 	<div
-		class="p-4 mb-2 flex justify-center items-center gap-2 border border-gray-400 rounded-lg"
+		class="p-4 mb-2 flex justify-center items-center gap-2 border border-gray-400 rounded-lg text-center"
 		hx-target="this"
 	>
 		<div>
-			<h3>{ task.Name }</h3>
+			<h3 class="font-bold italic">{ task.Name }</h3>
+			<p>{ task.Descrition }</p>
 		</div>
 	</div>
 }
