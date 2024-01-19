@@ -182,42 +182,54 @@ func (u User) RefreshData(w http.ResponseWriter, r *http.Request) error {
 
 		go func() {
 			defer wg.Done()
+			respTaskLog, err := GetUserRecord(u.userKey)
+			if err != nil {
+				select {
+				case <-errCtx.Done():
+					logger.Debug("Had error")
+					return
+				default:
+					cancel()
+					logger.Debug(err.Error())
+					errCh <- err
+					return
+				}
+			}
 			select {
 			case <-errCtx.Done():
 				return
+			case respSingleRecordCh <- respTaskLog:
+				logger.Debug("Got single record", "respTaskLog", respTaskLog)
 			default:
 			}
-			respTaskLog, err := GetUserRecord(u.userKey)
-			if err != nil {
-				cancel()
-				close(respSingleRecordCh)
-				logger.Debug(err.Error())
-				errCh <- err
-				return
-			}
-			respSingleRecordCh <- respTaskLog
-			logger.Debug("Got single record", "respTaskLog", respTaskLog)
 		}()
 		go func() {
 			defer wg.Done()
+			respAllRecords, err := GetAllUserRecords(u.userKey)
+			if err != nil {
+				select {
+				case <-errCtx.Done():
+					logger.Debug("Had error")
+					return
+				default:
+					cancel()
+					logger.Debug(err.Error())
+					errCh <- err
+					return
+				}
+			}
 			select {
 			case <-errCtx.Done():
 				return
+			case respAllRecordsCh <- respAllRecords:
+				logger.Debug("Got all records", "respAllRecords", respAllRecords)
 			default:
 			}
-			respAllRecords, err := GetAllUserRecords(u.userKey)
-			logger.Debug("Got all records", "respAllRecords", respAllRecords)
-			if err != nil {
-				cancel()
-				close(respAllRecordsCh)
-				logger.Debug(err.Error())
-				errCh <- err
-				return
-			}
-			respAllRecordsCh <- respAllRecords
 		}()
 
 		wg.Wait()
+		close(respSingleRecordCh)
+		close(respAllRecordsCh)
 
 		if errCtx.Err() != nil {
 			return <-errCh
@@ -225,23 +237,11 @@ func (u User) RefreshData(w http.ResponseWriter, r *http.Request) error {
 		close(errCh)
 
 		respTaskLog := <-respSingleRecordCh
-		logger.Debug("Got single record", "respTaskLog", respTaskLog)
+		logger.Debug("RENDERING single record")
 		_ = CurrentTaskAndExecutionLog(respTaskLog.Data.TaskLog).Render(r.Context(), w)
 		respAllRecords := <-respAllRecordsCh
-		logger.Debug("Got all records", "respAllRecords", respAllRecords)
+		logger.Debug("RENDERING all records")
 		_ = ActiveUserList(respAllRecords.Data.UserRecords).Render(r.Context(), w)
-
-		// select {
-		// case err := <-errCh:
-		// 	return err
-		// default:
-		// 	respTaskLog := <-respSingleRecordCh
-		// 	logger.Debug("Got single record", "respTaskLog", respTaskLog)
-		// 	_ = CurrentTaskAndExecutionLog(respTaskLog.Data.TaskLog).Render(r.Context(), w)
-		// 	respAllRecords := <-respAllRecordsCh
-		// 	logger.Debug("Got all records", "respAllRecords", respAllRecords)
-		// 	_ = ActiveUserList(respAllRecords.Data.UserRecords).Render(r.Context(), w)
-		// }
 	case "sudo":
 		respSingleRecord, err := GetSingleRecordSudo(u.userKey, u.userType)
 		if err != nil {
