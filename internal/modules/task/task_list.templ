@@ -63,7 +63,7 @@ templ STaskList(tasks []STask) {
 	</section>
 }
 
-templ CurrentTaskAndExecutionLog(taskLog TaskLog) {
+templ CurrentTaskAndExecutionLog(taskLog Record) {
 	if len(taskLog.TaskHistory) > 0 {
 		<h2 class="mb-4 font-bold text-3xl">Current task</h2>
 		@TaskItem(taskLog.CurrentTask, false)
@@ -80,7 +80,7 @@ templ CurrentTaskAndExecutionLog(taskLog TaskLog) {
 	</ul>
 }
 
-templ ActiveUserList(userRecords []TaskLog) {
+templ ActiveUserList(userRecords []Record) {
 	<section id="user-list" hx-swap-oob="true">
 		<h2 class="mb-4 font-bold text-3xl">Active users</h2>
 		<ul>

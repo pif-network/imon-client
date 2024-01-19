@@ -37,15 +37,15 @@ func (t *Task) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-type TaskLog struct {
+type Record struct {
 	ID          int    `json:"id"`
 	UserName    string `json:"user_name"`
 	CurrentTask Task   `json:"current_task"`
 	TaskHistory []Task `json:"task_history"`
 }
 
-func (t *TaskLog) UnmarshalJSON(data []byte) error {
-	type Alias TaskLog
+func (t *Record) UnmarshalJSON(data []byte) error {
+	type Alias Record
 	aux := &struct {
 		*Alias
 	}{

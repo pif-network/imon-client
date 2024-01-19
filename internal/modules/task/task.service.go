@@ -2,9 +2,11 @@ package task
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sync"
 
 	"the-gorgeouses.com/imon-client/internal/core"
 	"the-gorgeouses.com/imon-client/internal/core/server"
@@ -12,13 +14,14 @@ import (
 
 type UserTaskLogResponse struct {
 	Data struct {
-		TaskLog TaskLog `json:"task_log"`
+		TaskLog Record `json:"task_log"`
 	} `json:"data"`
 	Status string `json:"status"`
 }
 
 func GetUserRecord(userKey string) (UserTaskLogResponse, error) {
 	payload := generatePayload(userKey, "user", UpstreamEventType.GetSingleRecord)
+	logger.Debug(payload)
 	resp, err := http.Post(
 		"http://localhost:8000/v1/rpc/user",
 		"application/json",
@@ -43,7 +46,7 @@ func GetUserRecord(userKey string) (UserTaskLogResponse, error) {
 
 type AllUserRecordsResponse struct {
 	Data struct {
-		UserRecords []TaskLog `json:"user_records"`
+		UserRecords []Record `json:"user_records"`
 	} `json:"data"`
 	Status string `json:"status"`
 }
@@ -167,16 +170,78 @@ func GetSingleRecordSudo(userKey string, userType string) (SingleRecordResponse,
 func (u User) RefreshData(w http.ResponseWriter, r *http.Request) error {
 	switch u.userType {
 	case "user":
-		respTaskLog, err := GetUserRecord(u.userKey)
-		if err != nil {
-			return err
+		var wg sync.WaitGroup
+		wg.Add(2)
+
+		errCtx, cancel := context.WithCancel(r.Context())
+		defer cancel()
+
+		respSingleRecordCh := make(chan UserTaskLogResponse, 1)
+		respAllRecordsCh := make(chan AllUserRecordsResponse, 1)
+		errCh := make(chan error, 1)
+
+		go func() {
+			defer wg.Done()
+			select {
+			case <-errCtx.Done():
+				return
+			default:
+			}
+			respTaskLog, err := GetUserRecord(u.userKey)
+			if err != nil {
+				cancel()
+				close(respSingleRecordCh)
+				logger.Debug(err.Error())
+				errCh <- err
+				return
+			}
+			respSingleRecordCh <- respTaskLog
+			logger.Debug("Got single record", "respTaskLog", respTaskLog)
+		}()
+		go func() {
+			defer wg.Done()
+			select {
+			case <-errCtx.Done():
+				return
+			default:
+			}
+			respAllRecords, err := GetAllUserRecords(u.userKey)
+			logger.Debug("Got all records", "respAllRecords", respAllRecords)
+			if err != nil {
+				cancel()
+				close(respAllRecordsCh)
+				logger.Debug(err.Error())
+				errCh <- err
+				return
+			}
+			respAllRecordsCh <- respAllRecords
+		}()
+
+		wg.Wait()
+
+		if errCtx.Err() != nil {
+			return <-errCh
 		}
+		close(errCh)
+
+		respTaskLog := <-respSingleRecordCh
+		logger.Debug("Got single record", "respTaskLog", respTaskLog)
 		_ = CurrentTaskAndExecutionLog(respTaskLog.Data.TaskLog).Render(r.Context(), w)
-		respAllRecords, err := GetAllUserRecords(u.userKey)
-		if err != nil {
-			return err
-		}
+		respAllRecords := <-respAllRecordsCh
+		logger.Debug("Got all records", "respAllRecords", respAllRecords)
 		_ = ActiveUserList(respAllRecords.Data.UserRecords).Render(r.Context(), w)
+
+		// select {
+		// case err := <-errCh:
+		// 	return err
+		// default:
+		// 	respTaskLog := <-respSingleRecordCh
+		// 	logger.Debug("Got single record", "respTaskLog", respTaskLog)
+		// 	_ = CurrentTaskAndExecutionLog(respTaskLog.Data.TaskLog).Render(r.Context(), w)
+		// 	respAllRecords := <-respAllRecordsCh
+		// 	logger.Debug("Got all records", "respAllRecords", respAllRecords)
+		// 	_ = ActiveUserList(respAllRecords.Data.UserRecords).Render(r.Context(), w)
+		// }
 	case "sudo":
 		respSingleRecord, err := GetSingleRecordSudo(u.userKey, u.userType)
 		if err != nil {

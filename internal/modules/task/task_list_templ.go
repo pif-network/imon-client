@@ -235,7 +235,7 @@ func STaskList(tasks []STask) templ.Component {
 	})
 }
 
-func CurrentTaskAndExecutionLog(taskLog TaskLog) templ.Component {
+func CurrentTaskAndExecutionLog(taskLog Record) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -319,7 +319,7 @@ func CurrentTaskAndExecutionLog(taskLog TaskLog) templ.Component {
 	})
 }
 
-func ActiveUserList(userRecords []TaskLog) templ.Component {
+func ActiveUserList(userRecords []Record) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
