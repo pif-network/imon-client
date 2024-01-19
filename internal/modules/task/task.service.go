@@ -17,10 +17,10 @@ type UserTaskLogResponse struct {
 	Status string `json:"status"`
 }
 
-func GetUserTaskLogById(userKey string) (UserTaskLogResponse, error) {
-	payload := fmt.Sprintf(`{"key": "%s"}`, userKey)
+func GetUserRecord(userKey string) (UserTaskLogResponse, error) {
+	payload := generatePayload(userKey, "user", UpstreamEventType.GetSingleRecord)
 	resp, err := http.Post(
-		"http://localhost:8000/v1/record",
+		"http://localhost:8000/v1/rpc/user",
 		"application/json",
 		bytes.NewBuffer([]byte(payload)),
 	)
@@ -48,8 +48,14 @@ type AllUserRecordsResponse struct {
 	Status string `json:"status"`
 }
 
-func GetAllUserRecords() (AllUserRecordsResponse, error) {
-	resp, err := http.Get("http://localhost:8000/v1/record/all")
+func GetAllUserRecords(userKey string) (AllUserRecordsResponse, error) {
+	payload := generatePayload(userKey, "user", UpstreamEventType.GetAllUserRecords)
+	logger.Debug(payload)
+	resp, err := http.Post(
+		"http://localhost:8000/v1/rpc/user",
+		"application/json",
+		bytes.NewBuffer([]byte(payload)),
+	)
 	if err != nil {
 		return handleErrorHttpResponse[AllUserRecordsResponse](resp, err)
 	}
@@ -103,12 +109,12 @@ type RpcPayload struct {
 	Payload map[string]interface{} `json:"payload"`
 }
 
-func generatePayload(userKey string, eventType string) string {
+func generatePayload(userKey string, userType string, eventType string) string {
 	payload := RpcPayload{
 		Metadata: struct {
 			Of string `json:"of"`
 		}{
-			Of: "sudo",
+			Of: userType,
 		},
 		Payload: map[string]interface{}{
 			"key":        userKey,
@@ -132,8 +138,8 @@ type SingleRecordResponse struct {
 	Status string `json:"status"`
 }
 
-func GetSingleRecordSudo(userKey string) (SingleRecordResponse, error) {
-	payload := generatePayload(userKey, UpstreamEventType.GetSingleRecord)
+func GetSingleRecordSudo(userKey string, userType string) (SingleRecordResponse, error) {
+	payload := generatePayload(userKey, userType, UpstreamEventType.GetSingleRecord)
 	logger.Debug(payload)
 	resp, err := http.Post(
 		"http://localhost:8000/v1/rpc/sudo",
@@ -161,18 +167,18 @@ func GetSingleRecordSudo(userKey string) (SingleRecordResponse, error) {
 func (u User) RefreshData(w http.ResponseWriter, r *http.Request) error {
 	switch u.userType {
 	case "user":
-		respTaskLog, err := GetUserTaskLogById(u.userKey)
+		respTaskLog, err := GetUserRecord(u.userKey)
 		if err != nil {
 			return err
 		}
 		_ = CurrentTaskAndExecutionLog(respTaskLog.Data.TaskLog).Render(r.Context(), w)
-		respAllRecords, err := GetAllUserRecords()
+		respAllRecords, err := GetAllUserRecords(u.userKey)
 		if err != nil {
 			return err
 		}
 		_ = ActiveUserList(respAllRecords.Data.UserRecords).Render(r.Context(), w)
 	case "sudo":
-		respSingleRecord, err := GetSingleRecordSudo(u.userKey)
+		respSingleRecord, err := GetSingleRecordSudo(u.userKey, u.userType)
 		if err != nil {
 			return err
 		}

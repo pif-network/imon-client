@@ -64,7 +64,9 @@ type STask struct {
 }
 
 var UpstreamEventType = struct {
-	GetSingleRecord string
+	GetSingleRecord   string
+	GetAllUserRecords string
 }{
-	GetSingleRecord: "get_single_record",
+	GetSingleRecord:   "get_single_record",
+	GetAllUserRecords: "get_all_record",
 }
