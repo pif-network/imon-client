@@ -22,10 +22,13 @@ templ UserKeyForm() {
 			type="submit"
 			disabled
 			_="on click set #key-form-error.innerHTML to ''
-				on keyup from <input/> if its value is empty
-					add @disabled
-				else
-					remove @disabled
+				set #task-list.innerHTML to ''
+				set #user-list.innerHTML to ''
+
+			on keyup from <input/> if its value is empty
+				add @disabled
+			else
+				remove @disabled
 			"
 		>
 			Submit

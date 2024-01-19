@@ -32,7 +32,7 @@ func UserKeyForm() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</label> <input class=\"p-2 border border-gray-400 rounded-lg\" type=\"text\" name=\"user-key\" id=\"user-key\" placeholder=\"0000\"><div class=\"mb-3\"></div><button class=\"p-4 border border-gray-700 rounded-lg disabled:cursor-not-allowed\" type=\"submit\" disabled _=\"on click set #key-form-error.innerHTML to &#39;&#39;\n				on keyup from &lt;input/&gt; if its value is empty\n					add @disabled\n				else\n					remove @disabled\n			\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</label> <input class=\"p-2 border border-gray-400 rounded-lg\" type=\"text\" name=\"user-key\" id=\"user-key\" placeholder=\"0000\"><div class=\"mb-3\"></div><button class=\"p-4 border border-gray-700 rounded-lg disabled:cursor-not-allowed\" type=\"submit\" disabled _=\"on click set #key-form-error.innerHTML to &#39;&#39;\n				set #task-list.innerHTML to &#39;&#39;\n				set #user-list.innerHTML to &#39;&#39;\n\n			on keyup from &lt;input/&gt; if its value is empty\n				add @disabled\n			else\n				remove @disabled\n			\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
