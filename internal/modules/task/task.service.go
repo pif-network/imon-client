@@ -77,12 +77,13 @@ func GetAllUserRecords(userKey string) (AllUserRecordsResponse, error) {
 }
 
 func UpdateCurrentTask(userKey string, taskState TaskState) error {
-	// payload := fmt.Sprintf(`{"key": "%s", "state": "%s"}`, userKey, taskState)
-	payload := generatePayload(userKey, "user", UpstreamEventType.UpdateTask, nil)
+	payload := generatePayload(userKey, "user", UpstreamEventType.UpdateTask, map[string]interface{}{
+		"state": taskState,
+	})
 	logger.Debug(payload)
 
 	resp, err := http.Post(
-		"http://localhost:8000/v1/task/update",
+		"http://localhost:8000/v1/rpc/user",
 		"application/json",
 		bytes.NewBuffer([]byte(payload)),
 	)
