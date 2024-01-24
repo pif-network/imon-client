@@ -19,6 +19,14 @@ var logger = log.NewWithOptions(os.Stderr, log.Options{
 	Level:           log.DebugLevel,
 })
 
+var UpstreamEndpoint = struct {
+	User string
+	Sudo string
+}{
+	User: "http://localhost:8000/v1/rpc/user",
+	Sudo: "http://localhost:8000/v1/rpc/sudo",
+}
+
 func handleNotOkHttpResponse[T interface{}](res *http.Response) (T, error) {
 	// NOTE: The only not-ok status that this client is currently able to cause is 400.
 	logger.Debug("upstream_response", "code", res.StatusCode)

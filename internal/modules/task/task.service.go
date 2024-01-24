@@ -22,7 +22,7 @@ func GetUserRecord(userKey string) (UserTaskLogResponse, error) {
 	payload := generatePayload(userKey, "user", UpstreamEventType.GetSingleRecord, nil)
 	logger.Debug(payload)
 	resp, err := http.Post(
-		"http://localhost:8000/v1/rpc/user",
+		UpstreamEndpoint.User,
 		"application/json",
 		bytes.NewBuffer([]byte(payload)),
 	)
@@ -55,7 +55,7 @@ func GetAllUserRecords(userKey string) (AllUserRecordsResponse, error) {
 	logger.Debug(payload)
 
 	resp, err := http.Post(
-		"http://localhost:8000/v1/rpc/user",
+		UpstreamEndpoint.User,
 		"application/json",
 		bytes.NewBuffer([]byte(payload)),
 	)
@@ -83,7 +83,7 @@ func UpdateCurrentTask(userKey string, taskState TaskState) error {
 	logger.Debug(payload)
 
 	resp, err := http.Post(
-		"http://localhost:8000/v1/rpc/user",
+		UpstreamEndpoint.User,
 		"application/json",
 		bytes.NewBuffer([]byte(payload)),
 	)
@@ -169,7 +169,7 @@ func GetSingleRecordSudo(userKey string, userType string) (SingleRecordResponse,
 	payload := generatePayload(userKey, userType, UpstreamEventType.GetSingleRecord, nil)
 	logger.Debug(payload)
 	resp, err := http.Post(
-		"http://localhost:8000/v1/rpc/sudo",
+		UpstreamEndpoint.Sudo,
 		"application/json",
 		bytes.NewBuffer([]byte(payload)),
 	)
