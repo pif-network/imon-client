@@ -170,6 +170,11 @@ func GetSingleRecordSudo(userKey string, userType string) (SingleRecordResponse,
 func (u User) RefreshData(w http.ResponseWriter, r *http.Request) error {
 	switch u.userType {
 	case "user":
+		// NOTE: The 2 goroutines fire at the same time, so no need to check for
+		// context cancellation at the beginning of each goroutine.
+		// If goroutine 1 finishes first and causes an error, `errCtx` will be
+		// cancelled, and no matter the status of goroutine 2, it will just return.
+
 		var wg sync.WaitGroup
 		wg.Add(2)
 
