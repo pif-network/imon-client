@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"sync"
 
@@ -20,7 +19,7 @@ type UserTaskLogResponse struct {
 }
 
 func GetUserRecord(userKey string) (UserTaskLogResponse, error) {
-	payload := generatePayload(userKey, "user", UpstreamEventType.GetSingleRecord)
+	payload := generatePayload(userKey, "user", UpstreamEventType.GetSingleRecord, nil)
 	logger.Debug(payload)
 	resp, err := http.Post(
 		"http://localhost:8000/v1/rpc/user",
@@ -52,8 +51,9 @@ type AllUserRecordsResponse struct {
 }
 
 func GetAllUserRecords(userKey string) (AllUserRecordsResponse, error) {
-	payload := generatePayload(userKey, "user", UpstreamEventType.GetAllUserRecords)
+	payload := generatePayload(userKey, "user", UpstreamEventType.GetAllUserRecords, nil)
 	logger.Debug(payload)
+
 	resp, err := http.Post(
 		"http://localhost:8000/v1/rpc/user",
 		"application/json",
@@ -77,8 +77,9 @@ func GetAllUserRecords(userKey string) (AllUserRecordsResponse, error) {
 }
 
 func UpdateCurrentTask(userKey string, taskState TaskState) error {
-	payload := fmt.Sprintf(`{"key": "%s", "state": "%s"}`, userKey, taskState)
-	logger.Info(payload)
+	// payload := fmt.Sprintf(`{"key": "%s", "state": "%s"}`, userKey, taskState)
+	payload := generatePayload(userKey, "user", UpstreamEventType.UpdateTask, nil)
+	logger.Debug(payload)
 
 	resp, err := http.Post(
 		"http://localhost:8000/v1/task/update",
@@ -112,23 +113,45 @@ type RpcPayload struct {
 	Payload map[string]interface{} `json:"payload"`
 }
 
-func generatePayload(userKey string, userType string, eventType string) string {
-	payload := RpcPayload{
-		Metadata: struct {
-			Of string `json:"of"`
-		}{
-			Of: userType,
-		},
-		Payload: map[string]interface{}{
-			"key":        userKey,
-			"event_type": eventType,
-		},
+func generatePayload(userKey string, userType string, eventType string, additionalPayload map[string]interface{}) string {
+	var payload RpcPayload
+	if userKey == "" {
+		payload = RpcPayload{
+			Metadata: struct {
+				Of string `json:"of"`
+			}{
+				Of: userType,
+			},
+			Payload: map[string]interface{}{
+				"event_type": eventType,
+			},
+		}
+
+	} else {
+		payload = RpcPayload{
+			Metadata: struct {
+				Of string `json:"of"`
+			}{
+				Of: userType,
+			},
+			Payload: map[string]interface{}{
+				"key":        userKey,
+				"event_type": eventType,
+			},
+		}
 	}
+	if additionalPayload != nil {
+		for k, v := range additionalPayload {
+			payload.Payload[k] = v
+		}
+	}
+
 	b, err := json.Marshal(payload)
 	if err != nil {
 		logger.Error(err.Error())
 		return ""
 	}
+
 	return string(b)
 }
 
@@ -142,7 +165,7 @@ type SingleRecordResponse struct {
 }
 
 func GetSingleRecordSudo(userKey string, userType string) (SingleRecordResponse, error) {
-	payload := generatePayload(userKey, userType, UpstreamEventType.GetSingleRecord)
+	payload := generatePayload(userKey, userType, UpstreamEventType.GetSingleRecord, nil)
 	logger.Debug(payload)
 	resp, err := http.Post(
 		"http://localhost:8000/v1/rpc/sudo",
