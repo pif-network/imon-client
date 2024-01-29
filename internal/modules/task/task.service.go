@@ -156,7 +156,7 @@ func generatePayload(userKey string, userType string, eventType string, addition
 	return string(b)
 }
 
-type SingleRecordResponse struct {
+type SingleSudoRecordResponse struct {
 	Data struct {
 		Id             int     `json:"id"`
 		Name           string  `json:"name"`
@@ -165,7 +165,7 @@ type SingleRecordResponse struct {
 	Status string `json:"status"`
 }
 
-func GetSingleRecordSudo(userKey string, userType string) (SingleRecordResponse, error) {
+func GetSingleRecordSudo(userKey string, userType string) (SingleSudoRecordResponse, error) {
 	payload := generatePayload(userKey, userType, UpstreamEventType.GetSingleRecord, nil)
 	logger.Debug(payload)
 	resp, err := http.Post(
@@ -174,17 +174,17 @@ func GetSingleRecordSudo(userKey string, userType string) (SingleRecordResponse,
 		bytes.NewBuffer([]byte(payload)),
 	)
 	if err != nil {
-		return handleErrorHttpResponse[SingleRecordResponse](resp, err)
+		return handleErrorHttpResponse[SingleSudoRecordResponse](resp, err)
 	}
 	if resp.StatusCode != http.StatusOK {
-		return handleNotOkHttpResponse[SingleRecordResponse](resp)
+		return handleNotOkHttpResponse[SingleSudoRecordResponse](resp)
 	}
 	defer resp.Body.Close()
 
-	var dResp SingleRecordResponse
+	var dResp SingleSudoRecordResponse
 	if err := json.NewDecoder(resp.Body).Decode(&dResp); err != nil {
 		logger.Debug(err.Error())
-		return SingleRecordResponse{}, core.NewInternalError("Failed to unmarshal response body", err)
+		return SingleSudoRecordResponse{}, core.NewInternalError("Failed to unmarshal response body", err)
 	}
 
 	return dResp, nil
@@ -194,6 +194,14 @@ func GetSingleRecordSudo(userKey string, userType string) (SingleRecordResponse,
 func (u User) RefreshData(w http.ResponseWriter, r *http.Request) error {
 	switch u.userType {
 	case "user":
+		respTaskLog, err := GetUserRecord(u.userKey)
+		if err != nil {
+			return err
+		}
+
+		logger.Debug("RENDERING single record")
+		_ = CurrentTaskAndExecutionLog(respTaskLog.Data.TaskLog).Render(r.Context(), w)
+	case "sudo":
 		// NOTE: The 2 goroutines fire at the same time, so no need to check for
 		// context cancellation at the beginning of each goroutine.
 		// If goroutine 1 finishes first and causes an error, `errCtx` will be
@@ -204,14 +212,14 @@ func (u User) RefreshData(w http.ResponseWriter, r *http.Request) error {
 
 		errCtx, cancel := context.WithCancel(r.Context())
 		defer cancel()
-
-		respSingleRecordCh := make(chan UserTaskLogResponse, 1)
-		respAllRecordsCh := make(chan AllUserRecordsResponse, 1)
 		errCh := make(chan error, 1)
+
+		respSingleRecordCh := make(chan SingleSudoRecordResponse, 1)
+		respAllRecordsCh := make(chan AllUserRecordsResponse, 1)
 
 		go func() {
 			defer wg.Done()
-			respTaskLog, err := GetUserRecord(u.userKey)
+			respSingleRecord, err := GetSingleRecordSudo(u.userKey, u.userType)
 			if err != nil {
 				select {
 				case <-errCtx.Done():
@@ -227,8 +235,8 @@ func (u User) RefreshData(w http.ResponseWriter, r *http.Request) error {
 			select {
 			case <-errCtx.Done():
 				return
-			case respSingleRecordCh <- respTaskLog:
-				logger.Debug("Got single record", "respTaskLog", respTaskLog)
+			case respSingleRecordCh <- respSingleRecord:
+				logger.Debug(respSingleRecord)
 			default:
 			}
 		}()
@@ -251,7 +259,7 @@ func (u User) RefreshData(w http.ResponseWriter, r *http.Request) error {
 			case <-errCtx.Done():
 				return
 			case respAllRecordsCh <- respAllRecords:
-				logger.Debug("Got all records", "respAllRecords", respAllRecords)
+				logger.Debug(respAllRecords)
 			default:
 			}
 		}()
@@ -265,19 +273,12 @@ func (u User) RefreshData(w http.ResponseWriter, r *http.Request) error {
 		}
 		close(errCh)
 
-		respTaskLog := <-respSingleRecordCh
-		logger.Debug("RENDERING single record")
-		_ = CurrentTaskAndExecutionLog(respTaskLog.Data.TaskLog).Render(r.Context(), w)
+		respSingleRecord := <-respSingleRecordCh
+		logger.Debug("RENDERING single record published tasks")
+		_ = STaskList(respSingleRecord.Data.PublishedTasks).Render(r.Context(), w)
 		respAllRecords := <-respAllRecordsCh
 		logger.Debug("RENDERING all records")
 		_ = ActiveUserList(respAllRecords.Data.UserRecords).Render(r.Context(), w)
-	case "sudo":
-		respSingleRecord, err := GetSingleRecordSudo(u.userKey, u.userType)
-		if err != nil {
-			return err
-		}
-		logger.Debug(respSingleRecord)
-		_ = STaskList(respSingleRecord.Data.PublishedTasks).Render(r.Context(), w)
 		return nil
 	default:
 		return server.NewUpstreamError(
